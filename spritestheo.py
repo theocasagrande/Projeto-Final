@@ -27,10 +27,10 @@ class Skeleton(pygame.sprite.Sprite):
                     self.rect = self.image.get_rect()
                     self.rect.x = self.rect.x
                     self.current_frame += 1
-                    if self.current_frame >= len(self.animation_frames):
+                    if self.current_frame > len(self.animation_frames):
                         self.current_frame = 0
                     
-    def update_frames(self):
+    def update(self):
         if self.state == 'idle':
             self.load_idle_animation()
         elif self.state == 'attack':

@@ -5,7 +5,6 @@ from pygame.locals import *
 from typing import List, Tuple
 from config import *
 
-pygame.font
 
 def load_assets():
     assets = {}
