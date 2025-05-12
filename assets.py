@@ -15,4 +15,7 @@ def load_assets():
     assets['archer_idle'] = []
     for i in range(1,7):
         assets['archer_idle'].append(pygame.image.load(os.path.join(ANIM_DIR, 'archer', f'archer_idle0{i}.png')).convert_alpha())
+    assets['wizard_idle'] = []
+    for i in range(1,6):
+        assets['wizard_idle'].append(pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_idle0{i}.png')).convert_alpha())
     return assets

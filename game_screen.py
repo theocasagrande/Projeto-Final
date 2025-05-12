@@ -5,6 +5,7 @@ from config import *
 from assets import load_assets
 import time
 from spritestheo import *
+from spriteszaltron import *
 # ----- Cores
 
 def game_screen(window):
@@ -22,6 +23,10 @@ def game_screen(window):
     all_sprites = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
     skeleton1 = Skeleton(500, 500, 'idle')
+    archer1 = Archer(700, 200, 'idle')
+    wizard1 = Wizard(400, 100, 'idle')
+    all_sprites.add(archer1)
+    all_sprites.add(wizard1)
     all_skeletons.add(skeleton1)
     all_sprites.add(all_skeletons)
     # ----- Cria o relógio para controlar o FPS
