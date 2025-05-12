@@ -21,7 +21,7 @@ def game_screen(window):
     state = PLAYING
     all_sprites = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
-    skeleton1 = Skeleton(random.randint(100,500), random.randint(100,500), 'idle')
+    skeleton1 = Skeleton(500, 500, 'idle')
     all_skeletons.add(skeleton1)
     all_sprites.add(all_skeletons)
     # ----- Cria o relógio para controlar o FPS
