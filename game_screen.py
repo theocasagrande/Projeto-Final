@@ -1,7 +1,7 @@
 import pygame
 import random
 from os import path
-from config import IMG_DIR, SND_DIR, FNT_DIR, WIDTH, HEIGHT
+from config import *
 from assets import load_assets
 # ----- Cores
 
@@ -25,5 +25,10 @@ def game_screen(window):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 state = DONE
-    pygame.display.update()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    state = DONE
+        window.fill((255,255, 255))
+        pygame.display.update()
+    return state
 # ----- Inicia estruturas de dados

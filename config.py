@@ -10,6 +10,6 @@ WIDTH = 1920  # Largura da tela
 HEIGHT = 1080 # Altura da tela
 FPS = 45 # Frames por segundo
 
-INIT = 0
+INIT = 3
 GAME = 1
 QUIT = 2

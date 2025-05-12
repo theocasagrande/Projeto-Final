@@ -22,6 +22,9 @@ def init_screen(window):
                 if event.key == pygame.K_RETURN:
                     state = GAME
                     running = False
+                if event.key == pygame.K_ESCAPE:
+                    state = QUIT
+                    running = False
 
         # Desenha o fundo
         window.fill(BLACK)
