@@ -26,13 +26,15 @@ def game_screen(window):
 
     skeleton1 = Skeleton(500, 500, 'idle')
     archer1 = Archer(GRIDWIDTH, GRIDHEIGHT, 'idle')
-    wizard1 = Wizard(5, 5, 'idle', all_sprites, game_walls)
     for row, tiles in enumerate(assets['map']):
         for col, tile in enumerate(tiles):
             if tile == '1':
                 wall = Wall(col, row)
                 all_sprites.add(wall)
                 game_walls.add(wall)
+            if tile == 'P':
+                wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls)
+                all_sprites.add(wizard1)
     all_sprites.add(wizard1)
     all_sprites.add(archer1)
     all_skeletons.add(skeleton1)
