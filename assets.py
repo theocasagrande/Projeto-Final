@@ -20,5 +20,10 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_idle0{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['wizard_idle'].append(img)
+    map_data = []
+    with open(os.path.join(IMG_DIR, 'map.txt'), 'rt') as f:
+        for line in f:
+            map_data.append(list(line.strip()))
+    assets['map'] = map_data
 
     return assets

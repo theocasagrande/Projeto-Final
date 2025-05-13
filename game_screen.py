@@ -27,10 +27,12 @@ def game_screen(window):
     skeleton1 = Skeleton(500, 500, 'idle')
     archer1 = Archer(GRIDWIDTH, GRIDHEIGHT, 'idle')
     wizard1 = Wizard(5, 5, 'idle', all_sprites, game_walls)
-    for x in range(30, 50):
-            wall = Wall(x, 10)
-            game_walls.add(wall)
-            all_sprites.add(wall)
+    for row, tiles in enumerate(assets['map']):
+        for col, tile in enumerate(tiles):
+            if tile == '1':
+                wall = Wall(col, row)
+                all_sprites.add(wall)
+                game_walls.add(wall)
     all_sprites.add(wizard1)
     all_sprites.add(archer1)
     all_skeletons.add(skeleton1)
