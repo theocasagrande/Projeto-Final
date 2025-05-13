@@ -4,7 +4,7 @@ from os import path
 from config import *
 from assets import load_assets
 import time
-from spritestheo import *
+from spritestheo import Skeleton, Wizard, Wall
 from spriteszaltron import *
 # ----- Cores
 
@@ -21,12 +21,18 @@ def game_screen(window):
     PLAYING = 1
     state = PLAYING
     all_sprites = pygame.sprite.Group()
+    game_walls = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
+
     skeleton1 = Skeleton(500, 500, 'idle')
     archer1 = Archer(GRIDWIDTH, GRIDHEIGHT, 'idle')
-    wizard1 = Wizard(5, 5, 'idle')
-    all_sprites.add(archer1)
+    wizard1 = Wizard(5, 5, 'idle', all_sprites, game_walls)
+    for x in range(30, 50):
+            wall = Wall(x, 10)
+            game_walls.add(wall)
+            all_sprites.add(wall)
     all_sprites.add(wizard1)
+    all_sprites.add(archer1)
     all_skeletons.add(skeleton1)
     all_sprites.add(all_skeletons)
     # ----- Cria o relógio para controlar o FPS
@@ -39,6 +45,15 @@ def game_screen(window):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     state = DONE
+                if event.key == pygame.K_UP:
+                    wizard1.move(0, -1)
+                if event.key == pygame.K_DOWN:
+                    wizard1.move(0, 1)
+                if event.key == pygame.K_LEFT:
+                    wizard1.move(-1, 0)
+                if event.key == pygame.K_RIGHT:
+                    wizard1.move(1, 0)
+
         all_sprites.update()
         window.fill((0, 0, 0))
         for x in range(0, WIDTH, TILESIZE):
