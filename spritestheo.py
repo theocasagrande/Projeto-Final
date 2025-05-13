@@ -39,7 +39,8 @@ class Wizard(pygame.sprite.Sprite):
         self.state = state
         self.image = self.assets['wizard_idle'][0]
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
         self.animation_frames = self.assets['wizard_idle']
         self.current_frame = 0
         self.last_update = pygame.time.get_ticks()

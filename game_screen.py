@@ -23,8 +23,8 @@ def game_screen(window):
     all_sprites = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
     skeleton1 = Skeleton(500, 500, 'idle')
-    archer1 = Archer(700, 200, 'idle')
-    wizard1 = Wizard(400, 100, 'idle')
+    archer1 = Archer(GRIDWIDTH, GRIDHEIGHT, 'idle')
+    wizard1 = Wizard(5, 5, 'idle')
     all_sprites.add(archer1)
     all_sprites.add(wizard1)
     all_skeletons.add(skeleton1)
@@ -40,7 +40,13 @@ def game_screen(window):
                 if event.key == pygame.K_ESCAPE:
                     state = DONE
         all_sprites.update()
-        window.fill((255,255, 255))
+        window.fill((0, 0, 0))
+        for x in range(0, WIDTH, TILESIZE):
+            pygame.draw.line(window, LIGHTGRAY, (x, 0), (x, HEIGHT))
+        for y in range(0, HEIGHT, TILESIZE):
+            pygame.draw.line(window, LIGHTGRAY, (0, y), (WIDTH, y))
+    
+
         all_sprites.draw(window)
         pygame.display.update()
     return state

@@ -1,7 +1,7 @@
 import pygame
 import random
 from os import path
-from config import IMG_DIR, FPS, GAME, QUIT, WIDTH
+from config import *
 from assets import load_assets
 BLACK = (0,0,0)
 def init_screen(window):
@@ -30,7 +30,7 @@ def init_screen(window):
         window.fill(BLACK)
 
         # Renderiza o texto "Press Enter to Start"
-        window.blit(texto, (WIDTH // 2 - texto.get_width() // 2, 500))
+        window.blit(texto, (WIDTH // 2 - texto.get_width() // 2, HEIGHT // 2 - texto.get_height() // 2))
 
         # Atualiza a tela
         pygame.display.flip()
