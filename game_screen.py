@@ -35,6 +35,7 @@ def game_screen(window):
             if tile == 'P':
                 wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls)
                 all_sprites.add(wizard1)
+    
     all_sprites.add(wizard1)
     all_sprites.add(archer1)
     all_skeletons.add(skeleton1)
@@ -43,22 +44,21 @@ def game_screen(window):
     while state != DONE:
         clock.tick(FPS)
 
+        dt = clock.tick(FPS) / 1000  # seconds
+        wizard1.update(dt)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 state = DONE
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     state = DONE
-                if event.key == pygame.K_UP:
-                    wizard1.move(0, -1)
-                if event.key == pygame.K_DOWN:
-                    wizard1.move(0, 1)
-                if event.key == pygame.K_LEFT:
-                    wizard1.move(-1, 0)
-                if event.key == pygame.K_RIGHT:
-                    wizard1.move(1, 0)
 
-        all_sprites.update()
+        for sprite in all_sprites:
+            if isinstance(sprite, Wizard):
+                sprite.update(dt)
+            else:
+                sprite.update()
+
         window.fill((0, 0, 0))
         for x in range(0, WIDTH, TILESIZE):
             pygame.draw.line(window, LIGHTGRAY, (x, 0), (x, HEIGHT))
