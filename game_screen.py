@@ -45,7 +45,7 @@ def game_screen(window):
         clock.tick(FPS)
 
         dt = clock.tick(FPS) / 1000  # seconds
-        wizard1.update(dt)
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 state = DONE
