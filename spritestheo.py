@@ -51,7 +51,7 @@ class Wizard(pygame.sprite.Sprite):
         self.frame_rate = 100
         self.rect = self.image.get_rect()
         self.direction = 0
-        self.iceticks = 500
+        self.iceticks = 1000
         self.last_ice_attack = pygame.time.get_ticks()
 
 
@@ -78,33 +78,41 @@ class Wizard(pygame.sprite.Sprite):
     def get_keys(self):
         self.vx, self.vy = 0, 0
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.vx = -PLAYER_SPEED
-            self.direction = 'left'
-        if keys[pygame.K_UP]:
-            self.vy = -PLAYER_SPEED
-            self.direction = 'up'
-        if keys[pygame.K_RIGHT]:
-            self.vx = PLAYER_SPEED
-            self.direction = 'right'
-        if keys[pygame.K_DOWN]:
-            self.vy =  PLAYER_SPEED
-            self.direction = 'down'
-        if self.vx != 0 and self.vy != 0:
-            self.vx *= 0.7071
-            self.vy *= 0.7071
+
+        if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
+            self.vx = -PLAYER_SPEED * 0.7071
+            self.vy = -PLAYER_SPEED * 0.7071
+            self.direction = 'up_left'
+        elif keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
+            self.vx = PLAYER_SPEED * 0.7071
+            self.vy = -PLAYER_SPEED * 0.7071
+            self.direction = 'up_right'
+        elif keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
+            self.vx = -PLAYER_SPEED * 0.7071
+            self.vy = PLAYER_SPEED * 0.7071
+            self.direction = 'down_left'
+        elif keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
+            self.vx = PLAYER_SPEED * 0.7071
+            self.vy = PLAYER_SPEED * 0.7071
+            self.direction = 'down_right'
+        else:
+            if keys[pygame.K_LEFT]:
+                self.vx = -PLAYER_SPEED
+                self.direction = 'left'
+            if keys[pygame.K_RIGHT]:
+                self.vx = PLAYER_SPEED
+                self.direction = 'right'
+            if keys[pygame.K_UP]:
+                self.vy = -PLAYER_SPEED
+                self.direction = 'up'
+            if keys[pygame.K_DOWN]:
+                self.vy = PLAYER_SPEED
+                self.direction = 'down'
         if self.vx != 0 or self.vy != 0:
             self.state = 'idle'
         if keys[pygame.K_SPACE]:
             self.ice_attack()
-        if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
-            self.direction = 'up_left'
-        if keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
-            self.direction = 'up_right'
-        if keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
-            self.direction = 'down_left'
-        if keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
-            self.direction = 'down_right' 
+
             
     def update(self, dt):
         self.get_keys()

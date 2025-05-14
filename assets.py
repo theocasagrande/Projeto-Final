@@ -26,6 +26,6 @@ def load_assets():
     assets['wizard_attack_ice'] = []
     for i in range(1,11):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'Wizard-Attack01_Effect-{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        img = pygame.transform.scale(img, (TILESIZE*2.5, TILESIZE*2.5))
         assets['wizard_attack_ice'].append(img)
     return assets
