@@ -49,6 +49,7 @@ class Wizard(pygame.sprite.Sprite):
         self.last_update = pygame.time.get_ticks()
         self.frame_rate = 100
         self.rect = self.image.get_rect()
+        self.direction = 0
 
 
     def collision(self, direction):
@@ -76,17 +77,29 @@ class Wizard(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             self.vx = -PLAYER_SPEED
+            self.direction = 'left'
         if keys[pygame.K_UP]:
             self.vy = -PLAYER_SPEED
+            self.direction = 'up'
         if keys[pygame.K_RIGHT]:
             self.vx = PLAYER_SPEED
+            self.direction = 'right'
         if keys[pygame.K_DOWN]:
             self.vy =  PLAYER_SPEED
+            self.direction = 'down'
         if self.vx != 0 and self.vy != 0:
             self.vx *= 0.7071
             self.vy *= 0.7071
         if self.vx != 0 or self.vy != 0:
             self.state = 'idle'
+        if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
+            self.direction = 'up_left'
+        if keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
+            self.direction = 'up_right'
+        if keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
+            self.direction = 'down_left'
+        if keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
+            self.direction = 'down_right' 
             
     def update(self, dt):
         self.get_keys()
