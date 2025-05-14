@@ -82,19 +82,50 @@ class Archer (pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
 
-class Bullet(pygame.sprite.Sprite):
+class Wizard_attack_ice(pygame.sprite.Sprite):
     # Construtor da classe.
-    def __init__(self, assets, bottom, centerx):
+    def __init__(self, assets, center, direction):
         # Construtor da classe mãe (Sprite).
         pygame.sprite.Sprite.__init__(self)
 
-        self.image = assets[BULLET_IMG]
-        self.mask = pygame.mask.from_surface(self.image)
+        self.image = assets["wizard_attack_ice"][0]
+        self.animation_frames = self.assets['wizard_attack_ice']
+        self.current_frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 100
         self.rect = self.image.get_rect()
+        self.center = center
+        self.direction = direction
+    
+    def update(self):
+        # Atualiza a animação
+        if self.direction == 'right':
+            self.center = (self.center[0] + 5, self.center[1])
+        elif self.direction == 'left':
+            self.center = (self.center[0] - 5, self.center[1])
+        elif self.direction == 'up':
+            self.center = (self.center[0], self.center[1] - 5)
+        elif self.direction == 'down':
+            self.center = (self.center[0], self.center[1] + 5)
+        elif self.direction == 'up_right':
+            self.center = (self.center[0] + 5, self.center[1] - 5)
+        elif self.direction == 'up_left':
+            self.center = (self.center[0] - 5, self.center[1] - 5)
+        elif self.direction == 'down_right':
+            self.center = (self.center[0] + 5, self.center[1] + 5)
+        elif self.direction == 'down_left':
+            self.center = (self.center[0] - 5, self.center[1] + 5)
 
-        # Coloca no lugar inicial definido em x, y do constutor
-        self.rect.centerx = centerx
-        self.rect.bottom = bottom
-        self.speedy = -10  # Velocidade fixa para cima    
+
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.current_frame += 1
+            if self.current_frame >= len(self.animation_frames):
+                self.current_frame = 0
+            self.image = self.animation_frames[self.current_frame]
+            old_center = self.rect.center
+            self.rect = self.image.get_rect()
+            self.rect.center = old_center
 
                     

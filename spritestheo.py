@@ -126,6 +126,24 @@ class Wizard(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+        
+    #  def rotate_image(self, direction):
+    #     if direction == 'up':
+    #         return pygame.transform.rotate(self.original_image, 0)
+    #     elif direction == 'down':
+    #         return pygame.transform.rotate(self.original_image, 180)
+    #     elif direction == 'left':
+    #         return pygame.transform.rotate(self.original_image, 90)
+    #     elif direction == 'right':
+    #         return pygame.transform.rotate(self.original_image, -90)
+    #     elif direction == 'up_left':
+    #         return pygame.transform.rotate(self.original_image, 45)
+    #     elif direction == 'up_right':
+    #         return pygame.transform.rotate(self.original_image, -45)
+    #     elif direction == 'down_left':
+    #         return pygame.transform.rotate(self.original_image, 135)
+    #     elif direction == 'down_right':
+    #         return pygame.transform.rotate(self.original_image, -135)
     
     
 class Wall(pygame.sprite.Sprite):
