@@ -87,7 +87,7 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
     def __init__(self, assets, center, direction):
         # Construtor da classe mãe (Sprite).
         pygame.sprite.Sprite.__init__(self)
-
+        self.assets = load_assets()
         self.image = assets["wizard_attack_ice"][0]
         self.animation_frames = self.assets['wizard_attack_ice']
         self.current_frame = 0
@@ -121,11 +121,12 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
         if now - self.last_update > self.frame_rate:
             self.last_update = now
             self.current_frame += 1
-            if self.current_frame >= len(self.animation_frames):
-                self.current_frame = 0
-            self.image = self.animation_frames[self.current_frame]
-            old_center = self.rect.center
-            self.rect = self.image.get_rect()
-            self.rect.center = old_center
+            if self.current_frame == len(self.animation_frames):
+                self.kill()
+            else:
+                self.image = self.animation_frames[self.current_frame]
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = self.center
 
                     

@@ -3,6 +3,7 @@ import os
 from config import *
 from assets import load_assets
 from game_screen import *
+from spriteszaltron import *
 
 dt = FPS / 1000
 class Skeleton(pygame.sprite.Sprite):
@@ -50,6 +51,8 @@ class Wizard(pygame.sprite.Sprite):
         self.frame_rate = 100
         self.rect = self.image.get_rect()
         self.direction = 0
+        self.iceticks = 500
+        self.last_ice_attack = pygame.time.get_ticks()
 
 
     def collision(self, direction):
@@ -92,6 +95,8 @@ class Wizard(pygame.sprite.Sprite):
             self.vy *= 0.7071
         if self.vx != 0 or self.vy != 0:
             self.state = 'idle'
+        if keys[pygame.K_SPACE]:
+            self.ice_attack()
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
             self.direction = 'up_left'
         if keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
@@ -126,7 +131,13 @@ class Wizard(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
-        
+    def ice_attack(self):
+        now = pygame.time.get_ticks()
+        elapsed_ticks = now - self.last_ice_attack
+        if elapsed_ticks > self.iceticks:
+            self.last_ice_attack = now
+            ice_attack = Wizard_attack_ice(self.assets,self.rect.center, self.direction)
+            self.groups.add(ice_attack) 
     #  def rotate_image(self, direction):
     #     if direction == 'up':
     #         return pygame.transform.rotate(self.original_image, 0)
