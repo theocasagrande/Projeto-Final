@@ -25,7 +25,6 @@ def game_screen(window):
     all_skeletons = pygame.sprite.Group()
 
     skeleton1 = Skeleton(500, 500, 'idle')
-    archer1 = Archer(GRIDWIDTH, GRIDHEIGHT, 'idle')
     for row, tiles in enumerate(assets['map']):
         for col, tile in enumerate(tiles):
             if tile == '1':
@@ -34,7 +33,9 @@ def game_screen(window):
                 game_walls.add(wall)
             if tile == 'P':
                 wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls)
+                archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
                 all_sprites.add(wizard1)
+                all_sprites.add(archer1)
     
     all_sprites.add(wizard1)
     all_sprites.add(archer1)
@@ -55,6 +56,8 @@ def game_screen(window):
 
         for sprite in all_sprites:
             if isinstance(sprite, Wizard):
+                sprite.update(dt)
+            elif isinstance(sprite, Archer):
                 sprite.update(dt)
             else:
                 sprite.update()
