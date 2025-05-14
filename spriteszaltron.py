@@ -82,5 +82,19 @@ class Archer (pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
 
-    
+class Bullet(pygame.sprite.Sprite):
+    # Construtor da classe.
+    def __init__(self, assets, bottom, centerx):
+        # Construtor da classe mãe (Sprite).
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = assets[BULLET_IMG]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+
+        # Coloca no lugar inicial definido em x, y do constutor
+        self.rect.centerx = centerx
+        self.rect.bottom = bottom
+        self.speedy = -10  # Velocidade fixa para cima    
+
                     
