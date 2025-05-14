@@ -4,7 +4,6 @@ from config import *
 import random
 from typing import List, Tuple
 from pygame.locals import *
-from assets import load_assets
 
 class Map:
     def __init__(self, filename):

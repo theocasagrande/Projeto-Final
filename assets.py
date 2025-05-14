@@ -4,7 +4,7 @@ import random
 from pygame.locals import *
 from typing import List, Tuple
 from config import *
-
+from tilemap import Map
 
 def load_assets():
     assets = {}
@@ -22,10 +22,5 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_idle0{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['wizard_idle'].append(img)
-    map_data = []
-    with open(os.path.join(IMG_DIR, 'map.txt'), 'rt') as f:
-        for line in f:
-            map_data.append(list(line.strip()))
-    assets['map'] = map_data
-
+    assets['map'] = Map(path.join(IMG_DIR, 'map.txt'))
     return assets

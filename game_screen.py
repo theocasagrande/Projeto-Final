@@ -25,7 +25,7 @@ def game_screen(window):
     all_skeletons = pygame.sprite.Group()
 
     skeleton1 = Skeleton(500, 500, 'idle')
-    for row, tiles in enumerate(assets['map']):
+    for row, tiles in enumerate(assets['map'].data):
         for col, tile in enumerate(tiles):
             if tile == '1':
                 wall = Wall(col, row)
