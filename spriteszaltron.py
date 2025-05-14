@@ -80,7 +80,7 @@ class Archer (pygame.sprite.Sprite):
                 self.image = self.animation_frames[self.current_frame]
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
-                self.rect.center = old_center
+                self.rect.center = old_center   
 
 class Wizard_attack_ice(pygame.sprite.Sprite):
     # Construtor da classe.
