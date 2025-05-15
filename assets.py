@@ -11,7 +11,9 @@ def load_assets():
     assets['fontinit'] = pygame.font.Font(os.path.join(FNT_DIR,'Bleeding_Cowboys.ttf'), 28)
     assets['skeleton_idle'] = []
     for i in range(1,7):
-        assets['skeleton_idle'].append(pygame.image.load(os.path.join(ANIM_DIR, 'skeleton', f'skeleton_idle0{i}.png')).convert_alpha())
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton', f'skeleton_idle0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_idle'].append(img)
     assets['archer_idle'] = []
     for i in range(1,7):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'archer', f'archer_idle0{i}.png')).convert_alpha()
@@ -36,4 +38,9 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'Wizard-ice_attack_anim-{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE*1.18, TILESIZE))
         assets['wizard_attack_ice_anim'].append(img)
+    assets['wizard_walk'] = []
+    for i in range(1,9):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_walk0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['wizard_walk'].append(img)
     return assets

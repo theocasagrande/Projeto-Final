@@ -23,8 +23,6 @@ def game_screen(window):
     all_sprites = pygame.sprite.Group()
     game_walls = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
-
-    skeleton1 = Skeleton(500, 500, 'idle')
     for row, tiles in enumerate(assets['map'].data):
         for col, tile in enumerate(tiles):
             if tile == '1':
@@ -36,11 +34,14 @@ def game_screen(window):
                 archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
                 all_sprites.add(wizard1)
                 all_sprites.add(archer1)
+            if tile == 'S':
+                skeleton1 = Skeleton(col, row, 'idle', wizard1)
+                all_skeletons.add(skeleton1)
+                all_sprites.add(skeleton1)
     camera = Camera(assets['map_width'], assets['map_height'])
     
     all_sprites.add(wizard1)
     all_sprites.add(archer1)
-    all_skeletons.add(skeleton1)
     all_sprites.add(all_skeletons)
     # ----- Cria o relógio para controlar o FPS
     while state != DONE:
