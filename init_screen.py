@@ -28,7 +28,7 @@ def init_screen(window):
             window.fill(BLACK)
             window.blit(loading, (WIDTH // 2 - loading.get_width() // 2, HEIGHT // 2 - loading.get_height() // 2))
             pygame.display.flip()
-            return GAME  # now load the game screen
+            return GAME 
         else:
             window.fill(BLACK)
             window.blit(texto, (WIDTH // 2 - texto.get_width() // 2, HEIGHT // 2 - texto.get_height() // 2))
