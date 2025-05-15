@@ -5,34 +5,34 @@ from config import *
 from assets import load_assets
 BLACK = (0,0,0)
 def init_screen(window):
-    
     assets = load_assets()
 
     texto = assets['fontinit'].render("Pressione Enter para começar", True, (255, 0, 0))
-    # Cria um relógio para controlar o FPS
+    loading = assets['fontinit'].render("Carregando...", True, (255, 0, 0))
+
     clock = pygame.time.Clock()
     running = True
-    # Loop principal da tela inicial
+    show_loading = False
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                state = QUIT
-                running = False
+                return QUIT
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    state = GAME
-                    running = False
-                if event.key == pygame.K_ESCAPE:
-                    state = QUIT
-                    running = False
+                    show_loading = True
+                elif event.key == pygame.K_ESCAPE:
+                    return QUIT
 
-        # Desenha o fundo
-        window.fill(BLACK)
+        if show_loading:
+            window.fill(BLACK)
+            window.blit(loading, (WIDTH // 2 - loading.get_width() // 2, HEIGHT // 2 - loading.get_height() // 2))
+            pygame.display.flip()
+            return GAME  # now load the game screen
+        else:
+            window.fill(BLACK)
+            window.blit(texto, (WIDTH // 2 - texto.get_width() // 2, HEIGHT // 2 - texto.get_height() // 2))
+            pygame.display.flip()
+            clock.tick(FPS)
 
-        # Renderiza o texto "Press Enter to Start"
-        window.blit(texto, (WIDTH // 2 - texto.get_width() // 2, HEIGHT // 2 - texto.get_height() // 2))
 
-        # Atualiza a tela
-        pygame.display.flip()
-        clock.tick(FPS)
-    return state
