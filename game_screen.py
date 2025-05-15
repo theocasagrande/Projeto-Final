@@ -4,7 +4,7 @@ from os import path
 from config import *
 from assets import load_assets
 import time
-from spritestheo import Skeleton, Wizard, Wall
+from spritestheo import Skeleton, Wizard, Wall, Camera
 from spriteszaltron import *
 # ----- Cores
 
@@ -36,6 +36,7 @@ def game_screen(window):
                 archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
                 all_sprites.add(wizard1)
                 all_sprites.add(archer1)
+    camera = Camera(assets['map_width'], assets['map_height'])
     
     all_sprites.add(wizard1)
     all_sprites.add(archer1)
@@ -43,10 +44,9 @@ def game_screen(window):
     all_sprites.add(all_skeletons)
     # ----- Cria o relógio para controlar o FPS
     while state != DONE:
-        clock.tick(FPS)
 
         dt = clock.tick(FPS) / 1000  # seconds
-        
+        pygame.display.set_caption("FPS: " + str(int(clock.get_fps())))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 state = DONE
@@ -61,15 +61,16 @@ def game_screen(window):
                 sprite.update(dt)
             else:
                 sprite.update()
+        camera.update(wizard1)
 
         window.fill((0, 0, 0))
         for x in range(0, WIDTH, TILESIZE):
             pygame.draw.line(window, LIGHTGRAY, (x, 0), (x, HEIGHT))
         for y in range(0, HEIGHT, TILESIZE):
             pygame.draw.line(window, LIGHTGRAY, (0, y), (WIDTH, y))
-    
 
-        all_sprites.draw(window)
+        for sprite in all_sprites:
+            window.blit(sprite.image, camera.apply(sprite))
         pygame.display.update()
     return state
 # ----- Inicia estruturas de dados
