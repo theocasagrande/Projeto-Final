@@ -23,6 +23,8 @@ def load_assets():
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['wizard_idle'].append(img)
     assets['map'] = Map(path.join(IMG_DIR, 'map2.txt'))
+    assets['map_width'] = len(assets['map'].data[0]) * TILESIZE
+    assets['map_height'] = len(assets['map'].data) * TILESIZE
     assets['wizard_attack_ice'] = []
     for i in range(1,11):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'Wizard-Attack01_Effect-{i}.png')).convert_alpha()
