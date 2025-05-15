@@ -7,6 +7,23 @@ from spriteszaltron import *
 
 dt = FPS / 1000
 vec = pygame.math.Vector2
+def collision(sprite, group, direction):
+        hits = pygame.sprite.spritecollide(sprite, group, False)
+        if hits:
+            if direction == 'x':
+                if sprite.vel.x > 0:
+                    sprite.pos.x = hits[0].rect.left -  sprite.rect.width / 2
+                elif    sprite.vel.x < 0:
+                    sprite.pos.x = hits[0].rect.right +   sprite.rect.width / 2
+                sprite.vel.x = 0
+                sprite.rect.centerx = sprite.pos.x
+            elif direction == 'y':
+                if  sprite.vel.y > 0:
+                    sprite.pos.y = hits[0].rect.top - sprite.rect.height / 2
+                elif    sprite.vel.y < 0:
+                    sprite.pos.y = hits[0].rect.bottom +  sprite.rect.height / 2
+                sprite.vel.y = 0
+                sprite.rect.centery = sprite.pos.y
 class Skeleton(pygame.sprite.Sprite):
     def __init__(self, x, y, state, player):
         pygame.sprite.Sprite.__init__(self)
@@ -19,13 +36,30 @@ class Skeleton(pygame.sprite.Sprite):
         self.frame_rate = 100
         self.image = self.animation_frames[self.current_frame]
         self.rect = self.image.get_rect()
+        self.hit_rect = MOB_HIT_RECT.copy()
+        self.hit_rect.center = self.rect.center
         self.pos = vec(x * TILESIZE, y * TILESIZE)
         self.rect.center = self.pos
+        self.vel = vec(0, 0)
+        self.acc = vec(0, 0)
         self.rot = 0
         self.facing_right = True
 
     def update(self):
+        self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
+        self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
+        self.acc += self.vel * -1
+        self.vel += self.acc * dt
+        self.pos += self.vel * dt + 0.5 * self.acc * dt ** 2
+        self.rect.centerx = self.pos.x
+        collision(self, self.player.game_walls, 'x')
+        self.rect.centery = self.pos.y
+        collision(self, self.player.game_walls, 'y')
+        self.hit_rect.center = self.rect.center
+    
         if self.state == 'idle':
+            self.vel = vec(0, 0)
+            self.acc = vec(0, 0)
             delta_x = self.player.pos.x - self.pos.x
             if delta_x < 0:
                 self.facing_right = False
@@ -43,6 +77,7 @@ class Skeleton(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+        
 class Wizard(pygame.sprite.Sprite):
     def __init__(self, x, y, state, all_sprites, game_walls):
         pygame.sprite.Sprite.__init__(self, all_sprites)
@@ -74,26 +109,6 @@ class Wizard(pygame.sprite.Sprite):
         self.current_framewalk = 0
 
 
-
-
-
-    def collision(self, direction):
-        hits = pygame.sprite.spritecollide(self, self.game_walls, False)
-        if hits:
-            if direction == 'x':
-                if self.vel.x > 0:
-                    self.pos.x = hits[0].rect.left - self.rect.width / 2
-                elif self.vel.x < 0:
-                    self.pos.x = hits[0].rect.right + self.rect.width / 2
-                self.vel.x = 0
-                self.rect.centerx = self.pos.x
-            elif direction == 'y':
-                if self.vel.y > 0:
-                    self.pos.y = hits[0].rect.top - self.rect.height / 2
-                elif self.vel.y < 0:
-                    self.pos.y = hits[0].rect.bottom + self.rect.height / 2
-                self.vel.y = 0
-                self.rect.centery = self.pos.y
 
     
 
@@ -207,11 +222,11 @@ class Wizard(pygame.sprite.Sprite):
       
         self.pos.x += self.vel.x * dt
         self.rect.centerx = self.pos.x
-        self.collision('x')
+        collision(self, self.game_walls,'x')
 
         self.pos.y += self.vel.y * dt
         self.rect.centery = self.pos.y
-        self.collision('y')
+        collision(self, self.game_walls,'y')
 
 
 

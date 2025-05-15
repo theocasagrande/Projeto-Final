@@ -1,4 +1,5 @@
 from os import path
+import pygame
 
 # Estabelece a pasta que contem as figuras e sons.
 IMG_DIR = path.join(path.dirname(__file__), 'assets', 'img')
@@ -22,7 +23,8 @@ GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
 
-
+MOB_SPEED = 125
+MOB_HIT_RECT = pygame.Rect(0, 0, 30, 30)
 #player stats
 PLAYER_SPEED = 200
 
