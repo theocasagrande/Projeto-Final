@@ -16,7 +16,7 @@ def game_screen(window):
     # ----- Carrega os assets
     assets = load_assets()
 
-    FPS = 45
+    FPS = 60
     DONE = 0
     PLAYING = 1
     state = PLAYING
@@ -63,11 +63,7 @@ def game_screen(window):
                 sprite.update()
         camera.update(wizard1)
 
-        window.fill((0, 0, 0))
-        for x in range(0, WIDTH, TILESIZE):
-            pygame.draw.line(window, LIGHTGRAY, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, TILESIZE):
-            pygame.draw.line(window, LIGHTGRAY, (0, y), (WIDTH, y))
+        window.fill((169, 169, 169))
 
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))

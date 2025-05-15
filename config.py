@@ -9,7 +9,7 @@ ANIM_DIR = path.join(path.dirname(__file__), 'assets', 'anim')
 # Dados gerais do jogo.
 WIDTH = 1280  # Largura da tela 80 grids
 HEIGHT = 720 # Altura da tela 45 grids
-FPS = 45 # Frames por segundo
+FPS = 60 # Frames por segundo
 
 LIGHTGRAY = (200, 200, 200)
 
@@ -21,5 +21,8 @@ TILESIZE = 32
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
+
+
 #player stats
 PLAYER_SPEED = 200
+
