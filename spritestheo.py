@@ -38,22 +38,30 @@ class Skeleton(pygame.sprite.Sprite):
 
 class Wizard(pygame.sprite.Sprite):
     def __init__(self, x, y, state, all_sprites, game_walls):
-        pygame.sprite.Sprite.__init__(self)
-        self.groups = all_sprites
-        self.game_walls = game_walls
-        self.assets = load_assets()
-        self.vel = vec(0, 0)
-        self.pos = vec(x*TILESIZE, y*TILESIZE)
-        self.state = state
-        self.image = self.assets['wizard_idle'][0]
-        self.animation_frames = self.assets['wizard_idle']
-        self.current_frame = 0
-        self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 100
-        self.rect = self.image.get_rect()
-        self.direction = 0
-        self.iceticks = 1000
-        self.last_ice_attack = pygame.time.get_ticks()
+            pygame.sprite.Sprite.__init__(self, all_sprites)
+            self.game_walls = game_walls
+            self.all_sprites = all_sprites
+            self.assets = load_assets()
+
+            self.vel = vec(0, 0)
+            self.pos = vec(x * TILESIZE, y * TILESIZE)
+            self.state = state
+
+            self.original_frames = self.assets['wizard_idle']
+            self.animation_frames = list(self.original_frames)
+            self.current_frame = 0
+            self.image = self.animation_frames[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.center = self.pos 
+            self.iceticks = 1000
+            self.last_ice_attack = pygame.time.get_ticks()
+            self.direction = 'right'
+            self.prev_direction = None
+            self.last_update = pygame.time.get_ticks()
+            self.frame_rate = 100
+
+
+
 
 
     def collision(self, direction):
@@ -120,7 +128,15 @@ class Wizard(pygame.sprite.Sprite):
     def update(self, dt):
         self.get_keys()
 
-        # Update position by axis for proper collision
+        # Only flip if direction changed
+        if self.direction != self.prev_direction:
+            self.rotate_image(self.direction)
+            self.prev_direction = self.direction
+
+        # Set current frame image
+        self.image = self.animation_frames[self.current_frame]
+
+        # Position and collisions
         self.pos.x += self.vel.x * dt
         self.rect.centerx = self.pos.x
         self.collision('x')
@@ -129,6 +145,7 @@ class Wizard(pygame.sprite.Sprite):
         self.rect.centery = self.pos.y
         self.collision('y')
 
+        # Animation update
         if self.state == 'idle':
             now = pygame.time.get_ticks()
             if now - self.last_update > self.frame_rate:
@@ -139,32 +156,20 @@ class Wizard(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
 
+
     def ice_attack(self):
         now = pygame.time.get_ticks()
         elapsed_ticks = now - self.last_ice_attack
         if elapsed_ticks > self.iceticks:
             self.last_ice_attack = now
             ice_attack = Wizard_attack_ice(self.assets,self.pos, self.direction)
-            self.groups.add(ice_attack) 
-    #  def rotate_image(self, direction):
-    #     if direction == 'up':
-    #         return pygame.transform.rotate(self.original_image, 0)
-    #     elif direction == 'down':
-    #         return pygame.transform.rotate(self.original_image, 180)
-    #     elif direction == 'left':
-    #         return pygame.transform.rotate(self.original_image, 90)
-    #     elif direction == 'right':
-    #         return pygame.transform.rotate(self.original_image, -90)
-    #     elif direction == 'up_left':
-    #         return pygame.transform.rotate(self.original_image, 45)
-    #     elif direction == 'up_right':
-    #         return pygame.transform.rotate(self.original_image, -45)
-    #     elif direction == 'down_left':
-    #         return pygame.transform.rotate(self.original_image, 135)
-    #     elif direction == 'down_right':
-    #         return pygame.transform.rotate(self.original_image, -135)
-    
-    
+            self.all_sprites.add(ice_attack) 
+    def rotate_image(self, direction):
+        if direction == 'left' or direction == 'up_left' or direction == 'down_left':
+            self.animation_frames = [pygame.transform.flip(img, True, False) for img in self.original_frames]
+        elif direction == 'right' or direction == 'up_right' or direction == 'down_right':
+            self.animation_frames = list(self.original_frames)
+
 class Wall(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
