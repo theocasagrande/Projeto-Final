@@ -46,7 +46,7 @@ def game_screen(window):
     while state != DONE:
 
         dt = clock.tick(FPS) / 1000  # seconds
-        
+        pygame.display.set_caption("FPS: " + str(int(clock.get_fps())))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 state = DONE
@@ -68,7 +68,6 @@ def game_screen(window):
             pygame.draw.line(window, LIGHTGRAY, (x, 0), (x, HEIGHT))
         for y in range(0, HEIGHT, TILESIZE):
             pygame.draw.line(window, LIGHTGRAY, (0, y), (WIDTH, y))
-    
 
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))

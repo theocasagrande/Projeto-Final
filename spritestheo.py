@@ -173,10 +173,10 @@ class Wizard(pygame.sprite.Sprite):
 class Wall(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        
-        self.image = pygame.Surface((TILESIZE, TILESIZE))
-        self.image.fill((0, 255, 0))  # Cor preta para a parede
-        self.rect = self.image.get_rect()
+        self.assets = load_assets()
+        self.image = self.assets['wall_tile']
+        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
+        self.rect = self.image.get_rect()   
         self.x = x
         self.y = y
         self.rect.x = x * TILESIZE

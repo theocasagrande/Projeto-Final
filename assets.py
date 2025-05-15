@@ -30,4 +30,5 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'Wizard-Attack01_Effect-{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE*2.5, TILESIZE*2.5))
         assets['wizard_attack_ice'].append(img)
+    assets['wall_tile'] = pygame.image.load(os.path.join(IMG_DIR, 'tile_0014.png')).convert_alpha()
     return assets
