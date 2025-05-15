@@ -18,7 +18,7 @@ def load_assets():
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['archer_idle'].append(img)
     assets['wizard_idle'] = []   
-    for i in range(1,6):
+    for i in range(1,7):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_idle0{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['wizard_idle'].append(img)
@@ -34,6 +34,6 @@ def load_assets():
     assets['wizard_attack_ice_anim'] = []
     for i in range(1,7):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'Wizard-ice_attack_anim-{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        img = pygame.transform.scale(img, (TILESIZE*1.18, TILESIZE))
         assets['wizard_attack_ice_anim'].append(img)
     return assets
