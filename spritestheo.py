@@ -6,6 +6,7 @@ from game_screen import *
 from spriteszaltron import *
 
 dt = FPS / 1000
+vec = pygame.math.Vector2
 class Skeleton(pygame.sprite.Sprite):
     def __init__(self, x, y, state):
         pygame.sprite.Sprite.__init__(self)
@@ -41,8 +42,8 @@ class Wizard(pygame.sprite.Sprite):
         self.groups = all_sprites
         self.game_walls = game_walls
         self.assets = load_assets()
-        self.x = x *TILESIZE
-        self.y = y * TILESIZE
+        self.vel = vec(0, 0)
+        self.pos = vec(x*TILESIZE, y*TILESIZE)
         self.state = state
         self.image = self.assets['wizard_idle'][0]
         self.animation_frames = self.assets['wizard_idle']
@@ -59,92 +60,91 @@ class Wizard(pygame.sprite.Sprite):
         hits = pygame.sprite.spritecollide(self, self.game_walls, False)
         if hits:
             if direction == 'x':
-                if self.vx > 0:
-                    self.x = hits[0].rect.left - self.rect.width
-                elif self.vx < 0:
-                    self.x = hits[0].rect.right
-                self.vx = 0
-                self.rect.x = self.x
+                if self.vel.x > 0:
+                    self.pos.x = hits[0].rect.left - self.rect.width / 2
+                elif self.vel.x < 0:
+                    self.pos.x = hits[0].rect.right + self.rect.width / 2
+                self.vel.x = 0
+                self.rect.centerx = self.pos.x
             elif direction == 'y':
-                if self.vy > 0:
-                    self.y = hits[0].rect.top - self.rect.height
-                elif self.vy < 0:
-                    self.y = hits[0].rect.bottom
-                self.vy = 0
-                self.rect.y = self.y
+                if self.vel.y > 0:
+                    self.pos.y = hits[0].rect.top - self.rect.height / 2
+                elif self.vel.y < 0:
+                    self.pos.y = hits[0].rect.bottom + self.rect.height / 2
+                self.vel.y = 0
+                self.rect.centery = self.pos.y
 
     
 
     def get_keys(self):
-        self.vx, self.vy = 0, 0
+        self.vel = vec(0, 0)
         keys = pygame.key.get_pressed()
 
+        # Handle diagonals first
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
-            self.vx = -PLAYER_SPEED * 0.7071
-            self.vy = -PLAYER_SPEED * 0.7071
+            self.vel = vec(-1, -1)
             self.direction = 'up_left'
         elif keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
-            self.vx = PLAYER_SPEED * 0.7071
-            self.vy = -PLAYER_SPEED * 0.7071
+            self.vel = vec(1, -1)
             self.direction = 'up_right'
         elif keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
-            self.vx = -PLAYER_SPEED * 0.7071
-            self.vy = PLAYER_SPEED * 0.7071
+            self.vel = vec(-1, 1)
             self.direction = 'down_left'
         elif keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
-            self.vx = PLAYER_SPEED * 0.7071
-            self.vy = PLAYER_SPEED * 0.7071
+            self.vel = vec(1, 1)
             self.direction = 'down_right'
         else:
             if keys[pygame.K_LEFT]:
-                self.vx = -PLAYER_SPEED
+                self.vel.x = -1
                 self.direction = 'left'
             if keys[pygame.K_RIGHT]:
-                self.vx = PLAYER_SPEED
+                self.vel.x = 1
                 self.direction = 'right'
             if keys[pygame.K_UP]:
-                self.vy = -PLAYER_SPEED
+                self.vel.y = -1
                 self.direction = 'up'
             if keys[pygame.K_DOWN]:
-                self.vy = PLAYER_SPEED
+                self.vel.y = 1
                 self.direction = 'down'
-        if self.vx != 0 or self.vy != 0:
+
+        # Normalize for diagonal movement
+        if self.vel.length() != 0:
+            self.vel = self.vel.normalize() * PLAYER_SPEED
             self.state = 'idle'
+
         if keys[pygame.K_SPACE]:
             self.ice_attack()
+
 
             
     def update(self, dt):
         self.get_keys()
-        self.x += self.vx * dt
-        self.y += self.vy * dt
-        self.rect.x = self.x
+
+        # Update position by axis for proper collision
+        self.pos.x += self.vel.x * dt
+        self.rect.centerx = self.pos.x
         self.collision('x')
-        self.rect.y = self.y
+
+        self.pos.y += self.vel.y * dt
+        self.rect.centery = self.pos.y
         self.collision('y')
-        if pygame.sprite.spritecollideany(self, self.game_walls):
-            self.x -= self.vx * dt
-            self.y -= self.vy * dt
-
-
 
         if self.state == 'idle':
             now = pygame.time.get_ticks()
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
-                self.current_frame += 1
-                if self.current_frame >= len(self.animation_frames):
-                    self.current_frame = 0
+                self.current_frame = (self.current_frame + 1) % len(self.animation_frames)
                 self.image = self.animation_frames[self.current_frame]
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+
     def ice_attack(self):
         now = pygame.time.get_ticks()
         elapsed_ticks = now - self.last_ice_attack
         if elapsed_ticks > self.iceticks:
             self.last_ice_attack = now
-            ice_attack = Wizard_attack_ice(self.assets,self.rect.center, self.direction)
+            ice_attack = Wizard_attack_ice(self.assets,self.pos, self.direction)
             self.groups.add(ice_attack) 
     #  def rotate_image(self, direction):
     #     if direction == 'up':
