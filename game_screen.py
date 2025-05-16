@@ -64,10 +64,6 @@ def game_screen(window):
             else:
                 sprite.update()
         camera.update(wizard1)
-        for projectile in all_projectiles:
-            if isinstance(projectile, Wizard_attack_ice):
-                # Update all projectiles first
-                projectile.update()
         for skeleton in all_skeletons:
             if skeleton.health <= 0:
                 skeleton.kill()
