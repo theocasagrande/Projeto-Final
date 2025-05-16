@@ -5,25 +5,32 @@ from assets import load_assets
 from game_screen import *
 from spriteszaltron import *
 
-dt = FPS / 1000
+
 vec = pygame.math.Vector2
-def collision(sprite, group, direction):
-        hits = pygame.sprite.spritecollide(sprite, group, False)
+def collide_hit_rect(one, two):
+    return one.hit_rect.colliderect(two.rect)
+def collision(sprite, group, dir):
+    if dir == 'x':
+        hits = pygame.sprite.spritecollide(sprite, group, False, collide_hit_rect)
         if hits:
-            if direction == 'x':
-                if sprite.vel.x > 0:
-                    sprite.pos.x = hits[0].rect.left -  sprite.rect.width / 2
-                elif    sprite.vel.x < 0:
-                    sprite.pos.x = hits[0].rect.right +   sprite.rect.width / 2
-                sprite.vel.x = 0
-                sprite.rect.centerx = sprite.pos.x
-            elif direction == 'y':
-                if  sprite.vel.y > 0:
-                    sprite.pos.y = hits[0].rect.top - sprite.rect.height / 2
-                elif    sprite.vel.y < 0:
-                    sprite.pos.y = hits[0].rect.bottom +  sprite.rect.height / 2
-                sprite.vel.y = 0
-                sprite.rect.centery = sprite.pos.y
+            if hits[0].rect.centerx > sprite.hit_rect.centerx:
+                sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2
+            if hits[0].rect.centerx < sprite.hit_rect.centerx:
+                sprite.pos.x = hits[0].rect.right + sprite.hit_rect.width / 2
+            sprite.vel.x = 0
+            sprite.hit_rect.centerx = sprite.pos.x
+            sprite.pos.x = sprite.hit_rect.centerx
+
+    if dir == 'y':
+        hits = pygame.sprite.spritecollide(sprite, group, False, collide_hit_rect)
+        if hits:
+            if hits[0].rect.centery > sprite.hit_rect.centery:
+                sprite.pos.y = hits[0].rect.top - sprite.hit_rect.height / 2
+            if hits[0].rect.centery < sprite.hit_rect.centery:
+                sprite.pos.y = hits[0].rect.bottom + sprite.hit_rect.height / 2
+            sprite.vel.y = 0
+            sprite.hit_rect.centery = sprite.pos.y
+            sprite.pos.y = sprite.hit_rect.centery
 def distance_to(sprite1, sprite2):
     dx = sprite2.rect.centerx - sprite1.rect.centerx
     dy = sprite2.rect.centery - sprite1.rect.centery
@@ -42,11 +49,12 @@ def distance_to_group(sprite, group):
     
 
 class Skeleton(pygame.sprite.Sprite):
-    def __init__(self, x, y, state, player):
+    def __init__(self, x, y, state, player, game_walls):
         pygame.sprite.Sprite.__init__(self)
         self.assets = load_assets()
         self.player = player
         self.state = state
+        self.game_walls = game_walls
         self.animation_frames = self.assets['skeleton_idle']
         self.current_frame = 0
         self.last_update = pygame.time.get_ticks()
@@ -65,18 +73,13 @@ class Skeleton(pygame.sprite.Sprite):
         self.facing_right = True
         self.health = 100
 
-    def update(self):
+    def update(self, dt):
         if distance_to(self.player, self) <= 5*TILESIZE:
             self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
             self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
             self.acc += self.vel * -1
             self.vel += self.acc * dt
             self.pos += self.vel * dt + 0.5 * self.acc * dt ** 2
-        self.rect.centerx = self.pos.x
-        collision(self, self.player.game_walls, 'x')
-        self.rect.centery = self.pos.y
-        collision(self, self.player.game_walls, 'y')
-        self.hit_rect.center = self.rect.center
     
         if self.state == 'idle':
             self.vel = vec(0, 0)
@@ -98,6 +101,16 @@ class Skeleton(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+        self.rect.center = self.pos
+        self.hit_rect.centerx = self.pos.x
+        collision(self, self.game_walls, 'x')
+        self.hit_rect.centery = self.pos.y
+        collision(self, self.game_walls, 'y')
+        self.rect.center = self.hit_rect.center
+
+        self.hit_rect.centerx = self.pos.x
+        self.hit_rect.centery = self.pos.y
+        self.rect.center = self.hit_rect.center
         if self.health <= 0:
             self.kill()
     def draw_health(self):
@@ -137,6 +150,8 @@ class Wizard(pygame.sprite.Sprite):
         self.hurt_duration = len(self.hurt_frames) * self.frame_rate
         self.image = self.animation_frames[self.current_frame]
         self.rect = self.image.get_rect()
+        self.hit_rect = PLAYER_HIT_RECT.copy()
+        self.hit_rect.center = self.rect.center
         self.rect.center = self.pos 
         self.iceticks = 1000
         self.last_ice_attack = pygame.time.get_ticks()
@@ -233,6 +248,10 @@ class Wizard(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+                self.hit_rect.centerx = self.pos.x
+                self.hit_rect.centery = self.pos.y
+                self.rect.center = self.hit_rect.center
+
         if self.state == 'hurt':
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
@@ -269,16 +288,23 @@ class Wizard(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+                self.hit_rect.centerx = self.pos.x
+                self.hit_rect.centery = self.pos.y
+                self.rect.center = self.hit_rect.center
+
 
       
-        self.pos.x += self.vel.x * dt
-        self.rect.centerx = self.pos.x
-        collision(self, self.game_walls,'x')
+        self.rect.center = self.pos
+        self.pos += self.vel * dt
+        self.hit_rect.centerx = self.pos.x
+        collision(self, self.game_walls, 'x')
+        self.hit_rect.centery = self.pos.y
+        collision(self, self.game_walls, 'y')
+        self.rect.center = self.hit_rect.center
 
-        self.pos.y += self.vel.y * dt
-        self.rect.centery = self.pos.y
-        collision(self, self.game_walls,'y')
-
+        self.hit_rect.centerx = self.pos.x
+        self.hit_rect.centery = self.pos.y
+        self.rect.center = self.hit_rect.center
 
 
     def ice_attack(self):

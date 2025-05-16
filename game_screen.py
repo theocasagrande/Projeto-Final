@@ -36,7 +36,7 @@ def game_screen(window):
                 all_sprites.add(wizard1)
                 all_sprites.add(archer1)
             if tile == 'S':
-                skeleton1 = Skeleton(col, row, 'idle', wizard1)
+                skeleton1 = Skeleton(col, row, 'idle', wizard1, game_walls)
                 all_skeletons.add(skeleton1)
                 all_sprites.add(skeleton1)
     camera = Camera(assets['map_width'], assets['map_height'])
@@ -63,7 +63,7 @@ def game_screen(window):
                 sprite.update(dt)
             elif isinstance(sprite, Skeleton):
                 sprite.draw_health()
-                sprite.update()
+                sprite.update(dt)
             else:
                 sprite.update()
         camera.update(wizard1)
@@ -72,11 +72,12 @@ def game_screen(window):
                 skeleton.kill()
             selfhits = pygame.sprite.spritecollide(wizard1, all_skeletons, False, pygame.sprite.collide_rect )
             for hit in selfhits:
-                if wizard1.state != 'hurt':
                     wizard1.health -= MOB_DAMAGE
                     hit.vel = vec(0,0)
                     if wizard1.health <= 0:
                         return QUIT
+            if selfhits:
+                wizard1.pos += vec(MOB_KNOCKBACK)
         window.fill((169, 169, 169))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
