@@ -24,6 +24,11 @@ def collision(sprite, group, direction):
                     sprite.pos.y = hits[0].rect.bottom +  sprite.rect.height / 2
                 sprite.vel.y = 0
                 sprite.rect.centery = sprite.pos.y
+def distance_to(sprite1, sprite2):
+    dx = sprite2.rect.centerx - sprite1.rect.centerx
+    dy = sprite2.rect.centery - sprite1.rect.centery
+    return (dx**2 + dy**2) ** 0.5
+
 class Skeleton(pygame.sprite.Sprite):
     def __init__(self, x, y, state, player):
         pygame.sprite.Sprite.__init__(self)
@@ -40,17 +45,20 @@ class Skeleton(pygame.sprite.Sprite):
         self.hit_rect.center = self.rect.center
         self.pos = vec(x * TILESIZE, y * TILESIZE)
         self.rect.center = self.pos
+        self.rect.centerx = self.pos.x
+        self.rect.centery = self.pos.y
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.rot = 0
         self.facing_right = True
 
     def update(self):
-        self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
-        self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
-        self.acc += self.vel * -1
-        self.vel += self.acc * dt
-        self.pos += self.vel * dt + 0.5 * self.acc * dt ** 2
+        if distance_to(self.player, self) <= 5*TILESIZE:
+            self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
+            self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
+            self.acc += self.vel * -1
+            self.vel += self.acc * dt
+            self.pos += self.vel * dt + 0.5 * self.acc * dt ** 2
         self.rect.centerx = self.pos.x
         collision(self, self.player.game_walls, 'x')
         self.rect.centery = self.pos.y
