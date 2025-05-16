@@ -23,6 +23,7 @@ def game_screen(window):
     all_sprites = pygame.sprite.Group()
     game_walls = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
+    all_projectiles = pygame.sprite.Group()
     for row, tiles in enumerate(assets['map'].data):
         for col, tile in enumerate(tiles):
             if tile == '1':
@@ -30,7 +31,7 @@ def game_screen(window):
                 all_sprites.add(wall)
                 game_walls.add(wall)
             if tile == 'P':
-                wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls, all_skeletons)
+                wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
                 archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
                 all_sprites.add(wizard1)
                 all_sprites.add(archer1)
@@ -63,11 +64,18 @@ def game_screen(window):
             else:
                 sprite.update()
         camera.update(wizard1)
-
+        for projectile in all_projectiles:
+            if isinstance(projectile, Wizard_attack_ice):
+                # Update all projectiles first
+                projectile.update()
+        for skeleton in all_skeletons:
+            if skeleton.health <= 0:
+                skeleton.kill()
         window.fill((169, 169, 169))
 
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
         pygame.display.update()
     return state
+
 # ----- Inicia estruturas de dados

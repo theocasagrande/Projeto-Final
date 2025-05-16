@@ -28,3 +28,4 @@ MOB_HIT_RECT = pygame.Rect(0, 0, 30, 30)
 #player stats
 PLAYER_SPEED = 200
 
+ICE_ATTACK_DMG = 20

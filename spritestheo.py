@@ -7,6 +7,18 @@ from spriteszaltron import *
 
 dt = FPS / 1000
 vec = pygame.math.Vector2
+def direction_to_vector(direction):
+    vectors = {
+        'left': vec(-1, 0),
+        'right': vec(1, 0),
+        'up': vec(0, -1),
+        'down': vec(0, 1),
+        'up_left': vec(-1, -1).normalize(),
+        'up_right': vec(1, -1).normalize(),
+        'down_left': vec(-1, 1).normalize(),
+        'down_right': vec(1, 1).normalize()
+    }
+    return vectors.get(direction, vec(0, 0))
 def collision(sprite, group, direction):
         hits = pygame.sprite.spritecollide(sprite, group, False)
         if hits:
@@ -30,12 +42,15 @@ def distance_to(sprite1, sprite2):
     return (dx**2 + dy**2) ** 0.5
 def distance_to_group(sprite, group):
     smallestdistance = 10000
-    for enemy in group:
-        distance = distance_to(sprite, enemy)
-        if distance <= smallestdistance:
-            smallestdistance = distance
-            target = enemy
-    return smallestdistance, target
+    if len(group) != 0:
+        for enemy in group:
+            distance = distance_to(sprite, enemy)
+            if distance <= smallestdistance:
+                smallestdistance = distance
+                target = enemy
+        return smallestdistance, target
+    else:
+        return smallestdistance, None
     
 
 class Skeleton(pygame.sprite.Sprite):
@@ -60,6 +75,7 @@ class Skeleton(pygame.sprite.Sprite):
         self.acc = vec(0, 0)
         self.rot = 0
         self.facing_right = True
+        self.health = 100
 
     def update(self):
         if distance_to(self.player, self) <= 5*TILESIZE:
@@ -94,14 +110,17 @@ class Skeleton(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+        if self.health <= 0:
+            self.kill()
         
 class Wizard(pygame.sprite.Sprite):
-    def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons):
+    def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons, all_projectiles):
         pygame.sprite.Sprite.__init__(self, all_sprites)
         self.game_walls = game_walls
         self.all_sprites = all_sprites
         self.assets = load_assets()
         self.all_skeletons = all_skeletons
+        self.all_projectiles = all_projectiles
 
         self.vel = vec(0, 0)
         self.pos = vec(x * TILESIZE, y * TILESIZE)
@@ -263,6 +282,7 @@ class Wizard(pygame.sprite.Sprite):
             self.rect.center = old_center
             ice_attack = Wizard_attack_ice(self,self.pos, self.direction, self.all_skeletons)
             self.all_sprites.add(ice_attack)
+            self.all_projectiles.add(ice_attack)
             self.state = 'idle'
         
 
@@ -337,53 +357,68 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
         self.player = player
         self.animation_frames = self.assets['wizard_attack_ice']
         self.image = self.animation_frames[0]
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.damaged_enemies = set()
         self.current_frame = 0
         self.last_update = pygame.time.get_ticks()
         self.frame_rate = 100
+        self.collided = False
 
         # Fixed offset: 5 tiles in pixels
         offset = 5 * TILESIZE
         cx, cy = center
         distance, target = distance_to_group(self.player, all_skeletons)
 
-        if distance > 5*TILESIZE:
-            if direction == 'right':
-                self.center = (cx + offset, cy)
-            elif direction == 'left':
-                self.center = (cx - offset, cy)
-            elif direction == 'up':
-                self.center = (cx, cy - offset)
-            elif direction == 'down':
-                self.center = (cx, cy + offset)
-            elif direction == 'up_right':
-                self.center = (cx + offset, cy - offset)
-            elif direction == 'up_left':
-                self.center = (cx - offset, cy - offset)
-            elif direction == 'down_right':
-                self.center = (cx + offset, cy + offset)
-            elif direction == 'down_left':
-                self.center = (cx - offset, cy + offset)
-            else:
-                self.center = center  # fallback in case of invalid direction
-
-            self.rect = self.image.get_rect()
-            self.rect.center = self.center
-            # Make it a static effect by not storing self.direction
-        else:
-            self.rect = self.image.get_rect()
+        if target and distance <= 5*TILESIZE:
             self.rect.center = target.rect.center
+        else:
+            # Calculate direction-based offset
+            offset = vec(0, 0)
+            if direction == 'right':
+                offset = vec(5*TILESIZE, 0)
+            elif direction == 'left':
+                offset = vec(-5*TILESIZE, 0)
+            elif direction == 'up':
+                offset = vec(0, -5*TILESIZE)
+            elif direction == 'down':
+                offset = vec(0, 5*TILESIZE)
+            elif direction == 'up_right':
+                offset = vec(4*TILESIZE, -4*TILESIZE)  # Diagonal
+            elif direction == 'up_left':
+                offset = vec(-4*TILESIZE, -4*TILESIZE)
+            elif direction == 'down_right':
+                offset = vec(4*TILESIZE, 4*TILESIZE)
+            elif direction == 'down_left':
+                offset = vec(-4*TILESIZE, 4*TILESIZE)
+            
+            self.rect.center = (center[0] + offset.x, center[1] + offset.y)
+
 
 
     def update(self):
-        # Animate without changing position
         now = pygame.time.get_ticks()
         if now - self.last_update > self.frame_rate:
             self.last_update = now
             self.current_frame += 1
             if self.current_frame == len(self.animation_frames):
                 self.kill()
+                self.collided = False
             else:
                 self.image = self.animation_frames[self.current_frame]
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+        if not self.collided:
+            hits = pygame.sprite.spritecollide(
+                self, 
+                self.all_skeletons, 
+                False, 
+                pygame.sprite.collide_mask
+            )
+            for skeleton in hits:
+                if skeleton not in self.damaged_enemies:
+                    skeleton.health -= ICE_ATTACK_DMG
+                    self.damaged_enemies.add(skeleton)
+                    skeleton.collided = True
+                    self.collided = True 

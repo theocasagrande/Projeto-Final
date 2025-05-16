@@ -2,7 +2,7 @@
 # ----- Importa e inicia pacotes
 import pygame
 import random
-from config import WIDTH, HEIGHT, IMG_DIR, INIT, GAME, QUIT
+from config import WIDTH, HEIGHT, IMG_DIR, INIT, GAME, QUIT, ICE_ATTACK_DMG
 from assets import load_assets
 import time
 import os
