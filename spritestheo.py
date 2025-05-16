@@ -7,18 +7,6 @@ from spriteszaltron import *
 
 dt = FPS / 1000
 vec = pygame.math.Vector2
-def direction_to_vector(direction):
-    vectors = {
-        'left': vec(-1, 0),
-        'right': vec(1, 0),
-        'up': vec(0, -1),
-        'down': vec(0, 1),
-        'up_left': vec(-1, -1).normalize(),
-        'up_right': vec(1, -1).normalize(),
-        'down_left': vec(-1, 1).normalize(),
-        'down_right': vec(1, 1).normalize()
-    }
-    return vectors.get(direction, vec(0, 0))
 def collision(sprite, group, direction):
         hits = pygame.sprite.spritecollide(sprite, group, False)
         if hits:
