@@ -351,9 +351,8 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
         self.current_frame = 0
         self.last_update = pygame.time.get_ticks()
         self.frame_rate = 100
-        self.collided = False
-
-        # Fixed offset: 5 tiles in pixels
+    
+       
         offset = 5 * TILESIZE
         cx, cy = center
         distance, target = distance_to_group(self.player, all_skeletons)
@@ -397,16 +396,13 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
-        if not self.collided:
-            hits = pygame.sprite.spritecollide(
-                self, 
-                self.all_skeletons, 
-                False, 
-                pygame.sprite.collide_mask
-            )
-            for skeleton in hits:
-                if skeleton not in self.damaged_enemies:
-                    skeleton.health -= ICE_ATTACK_DMG
-                    self.damaged_enemies.add(skeleton)
-                    skeleton.collided = True
-                    self.collided = True 
+        hits = pygame.sprite.spritecollide(
+        self, 
+        self.all_skeletons, 
+        False, 
+        pygame.sprite.collide_mask
+        )
+        for skeleton in hits:
+            if skeleton not in self.damaged_enemies:
+                skeleton.health -= ICE_ATTACK_DMG
+                self.damaged_enemies.add(skeleton)
