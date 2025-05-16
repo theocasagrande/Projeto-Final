@@ -82,58 +82,6 @@ class Archer (pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center   
 
-class Wizard_attack_ice(pygame.sprite.Sprite):
-    # Construtor da classe.
-    def __init__(self, assets, center, direction):
-        pygame.sprite.Sprite.__init__(self)
-        self.assets = load_assets()
-        self.animation_frames = self.assets['wizard_attack_ice']
-        self.image = self.animation_frames[0]
-        self.current_frame = 0
-        self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 100
-
-        # Fixed offset: 5 tiles in pixels
-        offset = 5 * TILESIZE
-        cx, cy = center
-
-        # Calculate spawn position based on direction
-        if direction == 'right':
-            self.center = (cx + offset, cy)
-        elif direction == 'left':
-            self.center = (cx - offset, cy)
-        elif direction == 'up':
-            self.center = (cx, cy - offset)
-        elif direction == 'down':
-            self.center = (cx, cy + offset)
-        elif direction == 'up_right':
-            self.center = (cx + offset, cy - offset)
-        elif direction == 'up_left':
-            self.center = (cx - offset, cy - offset)
-        elif direction == 'down_right':
-            self.center = (cx + offset, cy + offset)
-        elif direction == 'down_left':
-            self.center = (cx - offset, cy + offset)
-        else:
-            self.center = center  # fallback in case of invalid direction
-
-        self.rect = self.image.get_rect()
-        self.rect.center = self.center
-        # Make it a static effect by not storing self.direction
-
-    def update(self):
-        # Animate without changing position
-        now = pygame.time.get_ticks()
-        if now - self.last_update > self.frame_rate:
-            self.last_update = now
-            self.current_frame += 1
-            if self.current_frame == len(self.animation_frames):
-                self.kill()
-            else:
-                self.image = self.animation_frames[self.current_frame]
-                old_center = self.rect.center
-                self.rect = self.image.get_rect()
-                self.rect.center = old_center
 
 
                     

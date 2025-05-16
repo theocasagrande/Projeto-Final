@@ -100,6 +100,17 @@ class Skeleton(pygame.sprite.Sprite):
                 self.rect.center = old_center
         if self.health <= 0:
             self.kill()
+    def draw_health(self):
+        if self.health > 60:
+            col = (0, 255, 0)
+        elif self.health > 30:
+            col = YELLOW
+        else:
+            col = (255, 0, 0)
+        width = int(self.rect.width * self.health / 100)
+        self.health_bar = pygame.Rect(0,0, width, 7)
+        if self.health < 100:
+            pygame.draw.rect(self.image, col, self.health_bar)
         
 class Wizard(pygame.sprite.Sprite):
     def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons, all_projectiles):
@@ -113,13 +124,17 @@ class Wizard(pygame.sprite.Sprite):
         self.vel = vec(0, 0)
         self.pos = vec(x * TILESIZE, y * TILESIZE)
         self.state = state
-    
+        self.frame_rate = 100
         self.original_frames = self.assets['wizard_idle']  
         self.animation_frames = list(self.original_frames)
         self.ice_attack_frames = self.assets['wizard_attack_ice_anim']
         self.original_ice_attack_frames = list(self.ice_attack_frames)
+        self.hurt_frames = self.assets['wizard_hurt']
+        self.original_hurt_frames = list(self.hurt_frames)
         self.current_frame = 0
         self.current_frameiceattack = 0
+        self.current_hurt_frame = 0
+        self.hurt_duration = len(self.hurt_frames) * self.frame_rate
         self.image = self.animation_frames[self.current_frame]
         self.rect = self.image.get_rect()
         self.rect.center = self.pos 
@@ -128,11 +143,11 @@ class Wizard(pygame.sprite.Sprite):
         self.direction = 'right'
         self.prev_direction = None
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 100
         self.original_walk_frames = self.assets['wizard_walk']
         self.walk_frames = list(self.original_walk_frames)
         self.current_framewalk = 0
-
+        self.health = PLAYER_HEALTH
+      
 
 
     
@@ -218,7 +233,18 @@ class Wizard(pygame.sprite.Sprite):
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
-        else:   
+        if self.state == 'hurt':
+            if now - self.last_update > self.frame_rate:
+                self.last_update = now
+                self.current_hurt_frame += 1
+                if self.current_frameiceattack >= len(self.ice_attack_frames):
+                    self.state = 'idle'
+                    self.current_hurtframe = 0
+                self.image = self.hurt_frames[self.current_hurtframe]
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = old_center
+        else:
           
             if self.state == 'walk':
                 frames = self.walk_frames
@@ -252,7 +278,6 @@ class Wizard(pygame.sprite.Sprite):
         self.pos.y += self.vel.y * dt
         self.rect.centery = self.pos.y
         collision(self, self.game_walls,'y')
-
 
 
 
@@ -400,7 +425,7 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
         self, 
         self.all_skeletons, 
         False, 
-        pygame.sprite.collide_mask
+        pygame.sprite.collide_rect
         )
         for skeleton in hits:
             if skeleton not in self.damaged_enemies:

@@ -7,7 +7,7 @@ import time
 from spritestheo import Skeleton, Wizard, Wall, Camera, Wizard_attack_ice
 from spriteszaltron import *
 # ----- Cores
-
+vec = pygame.math.Vector2
 def game_screen(window):
     # ----- Inicia o jogo
     pygame.init()
@@ -61,14 +61,23 @@ def game_screen(window):
                 sprite.update(dt)
             elif isinstance(sprite, Archer):
                 sprite.update(dt)
+            elif isinstance(sprite, Skeleton):
+                sprite.draw_health()
+                sprite.update()
             else:
                 sprite.update()
         camera.update(wizard1)
         for skeleton in all_skeletons:
             if skeleton.health <= 0:
                 skeleton.kill()
+            selfhits = pygame.sprite.spritecollide(wizard1, all_skeletons, False, pygame.sprite.collide_rect )
+            for hit in selfhits:
+                if wizard1.state != 'hurt':
+                    wizard1.health -= MOB_DAMAGE
+                    hit.vel = vec(0,0)
+                    if wizard1.health <= 0:
+                        return QUIT
         window.fill((169, 169, 169))
-
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
         pygame.display.update()
