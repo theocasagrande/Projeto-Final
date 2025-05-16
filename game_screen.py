@@ -4,7 +4,7 @@ from os import path
 from config import *
 from assets import load_assets
 import time
-from spritestheo import Skeleton, Wizard, Wall, Camera
+from spritestheo import Skeleton, Wizard, Wall, Camera, Wizard_attack_ice
 from spriteszaltron import *
 # ----- Cores
 
@@ -30,7 +30,7 @@ def game_screen(window):
                 all_sprites.add(wall)
                 game_walls.add(wall)
             if tile == 'P':
-                wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls)
+                wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls, all_skeletons)
                 archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
                 all_sprites.add(wizard1)
                 all_sprites.add(archer1)

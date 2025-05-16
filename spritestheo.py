@@ -28,6 +28,15 @@ def distance_to(sprite1, sprite2):
     dx = sprite2.rect.centerx - sprite1.rect.centerx
     dy = sprite2.rect.centery - sprite1.rect.centery
     return (dx**2 + dy**2) ** 0.5
+def distance_to_group(sprite, group):
+    smallestdistance = 10000
+    for enemy in group:
+        distance = distance_to(sprite, enemy)
+        if distance <= smallestdistance:
+            smallestdistance = distance
+            target = enemy
+    return smallestdistance, target
+    
 
 class Skeleton(pygame.sprite.Sprite):
     def __init__(self, x, y, state, player):
@@ -87,11 +96,12 @@ class Skeleton(pygame.sprite.Sprite):
                 self.rect.center = old_center
         
 class Wizard(pygame.sprite.Sprite):
-    def __init__(self, x, y, state, all_sprites, game_walls):
+    def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons):
         pygame.sprite.Sprite.__init__(self, all_sprites)
         self.game_walls = game_walls
         self.all_sprites = all_sprites
         self.assets = load_assets()
+        self.all_skeletons = all_skeletons
 
         self.vel = vec(0, 0)
         self.pos = vec(x * TILESIZE, y * TILESIZE)
@@ -251,7 +261,7 @@ class Wizard(pygame.sprite.Sprite):
             old_center = self.rect.center
             self.rect = self.image.get_rect()
             self.rect.center = old_center
-            ice_attack = Wizard_attack_ice(self.assets, self.pos, self.direction)
+            ice_attack = Wizard_attack_ice(self,self.pos, self.direction, self.all_skeletons)
             self.all_sprites.add(ice_attack)
             self.state = 'idle'
         
@@ -318,3 +328,62 @@ class Camera:
         x = max(-(self.width - WIDTH), x)
         y = max(-(self.height - HEIGHT), y)
         self.camera = pygame.Rect(x, y, self.width, self.height)
+class Wizard_attack_ice(pygame.sprite.Sprite):
+    # Construtor da classe.
+    def __init__(self, player, center, direction, all_skeletons):
+        pygame.sprite.Sprite.__init__(self)
+        self.assets = load_assets()
+        self.all_skeletons = all_skeletons
+        self.player = player
+        self.animation_frames = self.assets['wizard_attack_ice']
+        self.image = self.animation_frames[0]
+        self.current_frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 100
+
+        # Fixed offset: 5 tiles in pixels
+        offset = 5 * TILESIZE
+        cx, cy = center
+        distance, target = distance_to_group(self.player, all_skeletons)
+
+        if distance > 5*TILESIZE:
+            if direction == 'right':
+                self.center = (cx + offset, cy)
+            elif direction == 'left':
+                self.center = (cx - offset, cy)
+            elif direction == 'up':
+                self.center = (cx, cy - offset)
+            elif direction == 'down':
+                self.center = (cx, cy + offset)
+            elif direction == 'up_right':
+                self.center = (cx + offset, cy - offset)
+            elif direction == 'up_left':
+                self.center = (cx - offset, cy - offset)
+            elif direction == 'down_right':
+                self.center = (cx + offset, cy + offset)
+            elif direction == 'down_left':
+                self.center = (cx - offset, cy + offset)
+            else:
+                self.center = center  # fallback in case of invalid direction
+
+            self.rect = self.image.get_rect()
+            self.rect.center = self.center
+            # Make it a static effect by not storing self.direction
+        else:
+            self.rect = self.image.get_rect()
+            self.rect.center = target.rect.center
+
+
+    def update(self):
+        # Animate without changing position
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.current_frame += 1
+            if self.current_frame == len(self.animation_frames):
+                self.kill()
+            else:
+                self.image = self.animation_frames[self.current_frame]
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = old_center
