@@ -114,9 +114,9 @@ class Skeleton(pygame.sprite.Sprite):
         if self.health <= 0:
             self.kill()
     def draw_health(self):
-        if self.health > 60:
+        if self.health >= 60:
             col = (0, 255, 0)
-        elif self.health > 30:
+        elif self.health >= 30:
             col = YELLOW
         else:
             col = (255, 0, 0)
@@ -322,7 +322,6 @@ class Wizard(pygame.sprite.Sprite):
             ice_attack = Wizard_attack_ice(self,self.pos, self.direction, self.all_skeletons)
             self.all_sprites.add(ice_attack)
             self.all_projectiles.add(ice_attack)
-            self.state = 'idle'
         
 
     def rotate_image(self, direction):

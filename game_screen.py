@@ -8,6 +8,23 @@ from spritestheo import Skeleton, Wizard, Wall, Camera, Wizard_attack_ice
 from spriteszaltron import *
 # ----- Cores
 vec = pygame.math.Vector2
+
+def draw_player_health(surface, x, y, pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 20
+    fill = pct * BAR_LENGTH
+    outline_rect = pygame.Rect(x,y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x,y, fill, BAR_HEIGHT)
+    if pct > 0.6:
+        col = (0, 255, 0)
+    elif pct > 0.3:
+        col = (255, 255, 0)
+    else:
+        col = (255, 0, 0)
+    pygame.draw.rect(surface, col, fill_rect)
+    pygame.draw.rect(surface, (255,255,255), outline_rect, 2)
 def game_screen(window):
     # ----- Inicia o jogo
     pygame.init()
@@ -77,10 +94,14 @@ def game_screen(window):
                     if wizard1.health <= 0:
                         return QUIT
             if selfhits:
-                wizard1.pos += vec(MOB_KNOCKBACK)
+                wizard1.pos += vec(MOB_KNOCKBACK).rotate(-selfhits[0].rot)
+        
         window.fill((169, 169, 169))
+
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
+
+        draw_player_health(window, 10, 10, wizard1.health / PLAYER_HEALTH)
         pygame.display.update()
     return state
 
