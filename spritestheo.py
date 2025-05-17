@@ -71,7 +71,7 @@ class Skeleton(pygame.sprite.Sprite):
         self.acc = vec(0, 0)
         self.rot = 0
         self.facing_right = True
-        self.health = 100
+        self.health = SKELETON_HEALTH
 
     def update(self, dt):
         if distance_to(self.player, self) <= 5*TILESIZE:
@@ -171,56 +171,57 @@ class Wizard(pygame.sprite.Sprite):
         self.vel = vec(0, 0)
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_SPACE]:
-            self.state = 'ice_attack'
-            self.ice_attack()
+        if self.state != 'hurt':
+            if keys[pygame.K_SPACE]:
+                self.state = 'ice_attack'
+                self.ice_attack()
         # Handle diagonals first
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
             self.vel = vec(-1, -1)
             self.direction = 'up_left'
-            if self.state != 'ice_attack':
+            if self.state not in ('ice_attack', 'hurt'):
                 self.state = 'walk'
         elif keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
             self.vel = vec(1, -1)
             self.direction = 'up_right'
-            if self.state != 'ice_attack':
+            if self.state not in ('ice_attack', 'hurt'):
                 self.state = 'walk'
         elif keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
             self.vel = vec(-1, 1)
             self.direction = 'down_left'
-            if self.state != 'ice_attack':
+            if self.state not in ('ice_attack', 'hurt'):
                 self.state = 'walk'
         elif keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
             self.vel = vec(1, 1)
             self.direction = 'down_right'
-            if self.state != 'ice_attack':
+            if self.state not in ('ice_attack', 'hurt'):
                 self.state = 'walk'
         else:
             if keys[pygame.K_LEFT]:
                 self.vel.x = -1
                 self.direction = 'left'
-                if self.state != 'ice_attack':
+                if self.state not in ('ice_attack', 'hurt'):
                     self.state = 'walk'
             if keys[pygame.K_RIGHT]:
                 self.vel.x = 1
                 self.direction = 'right'
-                if self.state != 'ice_attack':
+                if self.state not in ('ice_attack', 'hurt'):
                     self.state = 'walk'
             if keys[pygame.K_UP]:
                 self.vel.y = -1
                 self.direction = 'up'
-                if self.state != 'ice_attack':
+                if self.state not in ('ice_attack', 'hurt'):
                     self.state = 'walk'
             if keys[pygame.K_DOWN]:
                 self.vel.y = 1
                 self.direction = 'down'
-                if self.state != 'ice_attack':
+                if self.state not in ('ice_attack', 'hurt'):
                     self.state = 'walk'
                 
         if self.vel.length() != 0:
             self.vel = self.vel.normalize() * PLAYER_SPEED
         else:
-            if self.state != 'ice_attack':
+            if self.state not in ('ice_attack', 'hurt'):
                 self.state = 'idle'
             self.vel = vec(0, 0)
 
@@ -256,13 +257,17 @@ class Wizard(pygame.sprite.Sprite):
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
                 self.current_hurt_frame += 1
-                if self.current_frameiceattack >= len(self.ice_attack_frames):
+                if self.current_hurt_frame >= len(self.hurt_frames):
                     self.state = 'idle'
-                    self.current_hurtframe = 0
-                self.image = self.hurt_frames[self.current_hurtframe]
+                    self.current_hurt_frame = 0
+                self.image = self.hurt_frames[self.current_hurt_frame]
                 old_center = self.rect.center
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
+                self.hit_rect.centerx = self.pos.x
+                self.hit_rect.centery = self.pos.y
+                self.rect.center = self.hit_rect.center
+
         else:
           
             if self.state == 'walk':
@@ -342,18 +347,26 @@ class Wizard(pygame.sprite.Sprite):
             pygame.transform.flip(img, flip, False)
             for img in self.original_ice_attack_frames
         ]
+
+        self.hurt_frames = [
+            pygame.transform.flip(img, flip, False)
+            for img in self.original_hurt_frames
+        ]
         
  
         if self.state == 'walk':
             self.image = self.walk_frames[self.current_framewalk]
         elif self.state == 'ice_attack':
             self.image = self.ice_attack_frames[self.current_frameiceattack]
+        elif self.state == 'hurt':
+            self.image = self.hurt_frames[self.current_hurt_frame]
         else:
             self.image = self.animation_frames[self.current_frame]
       
         old_center = self.rect.center
         self.rect = self.image.get_rect()
         self.rect.center = old_center
+        self.hit_rect.center = self.rect.center
 
 class Wall(pygame.sprite.Sprite):
     def __init__(self, x, y):

@@ -79,7 +79,6 @@ def game_screen(window):
             elif isinstance(sprite, Archer):
                 sprite.update(dt)
             elif isinstance(sprite, Skeleton):
-                sprite.draw_health()
                 sprite.update(dt)
             else:
                 sprite.update()
@@ -91,6 +90,7 @@ def game_screen(window):
             for hit in selfhits:
                     wizard1.health -= MOB_DAMAGE
                     hit.vel = vec(0,0)
+                    wizard1.state = 'hurt'
                     if wizard1.health <= 0:
                         return QUIT
             if selfhits:
@@ -100,6 +100,19 @@ def game_screen(window):
 
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
+
+        for skeleton in all_skeletons:
+            # Calculate health bar position relative to camera
+            pos = camera.apply(skeleton)
+            health_pos = pygame.Rect(pos.x, pos.y - 10, skeleton.rect.width, 5)
+            
+            # Draw background (empty) health bar
+            pygame.draw.rect(window, (255, 0, 0), health_pos)
+            
+            health_width = (skeleton.health / SKELETON_HEALTH) * skeleton.rect.width
+            current_health_pos = pygame.Rect(pos.x, pos.y - 10, health_width, 5)
+            pygame.draw.rect(window, (0, 255, 0), current_health_pos)
+
 
         draw_player_health(window, 10, 10, wizard1.health / PLAYER_HEALTH)
         pygame.display.update()
