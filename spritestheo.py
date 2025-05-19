@@ -218,7 +218,7 @@ class Wizard(pygame.sprite.Sprite):
         self.hit_rect.center = self.rect.center
         self.rect.center = self.pos 
         self.iceticks = 1000
-        self.specialticks = 8000
+        self.specialticks = 2000
         self.last_ice_attack = pygame.time.get_ticks()
         self.last_special = pygame.time.get_ticks()
         self.direction = 'right'
@@ -229,6 +229,7 @@ class Wizard(pygame.sprite.Sprite):
         self.current_framewalk = 0
         self.health = PLAYER_HEALTH
         self.last_hit_time = 0
+        
       
 
 
@@ -413,6 +414,7 @@ class Wizard(pygame.sprite.Sprite):
         specialattack = WizardSpecial(self, self.rect.center, self.all_skeletons, self.assets)
         self.all_sprites.add(specialattack)
         self.all_projectiles.add(specialattack)
+        self.last_special = pygame.time.get_ticks()
 
 
         
@@ -576,10 +578,9 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
 class WizardSpecial(pygame.sprite.Sprite):
     def __init__(self, player, center, all_skeletons, assets):
         pygame.sprite.Sprite.__init__(self)
-        self.assets = assets
         self.all_skeletons = all_skeletons
         self.player = player
-        self.animation_frames = self.assets['wizard_special_effect']
+        self.animation_frames = assets['wizard_special_effect']
         self.image = self.animation_frames[0]
         self.rect = self.image.get_rect()
         self.hit_rect = WIZARD_SPECIAL_RECT.copy()
