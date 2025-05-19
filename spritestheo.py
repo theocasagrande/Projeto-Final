@@ -574,3 +574,51 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
             if skeleton not in self.damaged_enemies:
                 skeleton.health -= ICE_ATTACK_DMG
                 self.damaged_enemies.add(skeleton)
+
+class WizardSpecial(pygame.sprite.Sprite):
+    def __init__(self, player, center, all_skeletons, assets):
+        pygame.sprite.Sprite.__init__(self)
+        self.assets = assets
+        self.all_skeletons = all_skeletons
+        self.player = player
+        self.animation_frames = self.assets['wizard_special_effect']
+        self.image = self.animation_frames[0]
+        self.rect = self.image.get_rect()
+        self.hit_rect = WIZARD_SPECIAL_RECT.copy()
+        self.damaged_enemies = set()
+        self.current_frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 100
+
+
+
+        self.centerx += random.randint(-5*TILESIZE,5*TILESIZE)
+        self.centery += random.randint(-5*TILESIZE, 5*TILESIZE)
+         
+
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.current_frame += 1
+            if self.current_frame == len(self.animation_frames):
+                self.kill()
+                self.collided = False
+            else:
+                self.image = self.animation_frames[self.current_frame]
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = old_center
+                self.hit_rect.center = self.rect.center
+
+        hits = pygame.sprite.spritecollide(
+        self, 
+        self.all_skeletons, 
+        False, 
+        collide_hit_rect
+        )
+        for skeleton in hits:
+            if skeleton not in self.damaged_enemies:
+                skeleton.health -= ICE_ATTACK_DMG
+                self.damaged_enemies.add(skeleton)
