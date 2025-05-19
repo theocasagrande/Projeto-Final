@@ -78,7 +78,7 @@ def load_assets():
     
     assets['knight_walk'] = []
     for i in range(1, 8):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knighwalk01{i}.png')).convert_alpha()
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightwalk01{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['knight_walk'].append(img)
     
