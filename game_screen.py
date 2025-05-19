@@ -58,7 +58,12 @@ def game_screen(window):
     #             all_sprites.add(skeleton1)
     wizard1 = Wizard(10, 5, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
     camera = Camera(assets['map_width'], assets['map_height'])
-    
+    skeleton1 = Skeleton(15, 15, 'idle', wizard1, game_walls)
+    skeleton2 = Skeleton(20, 15, 'idle', wizard1, game_walls)
+    skeleton3 = Skeleton(15, 20, 'idle', wizard1, game_walls)
+    all_skeletons.add(skeleton1)
+    all_skeletons.add(skeleton2)
+    all_skeletons.add(skeleton3)
     all_sprites.add(wizard1)
     # all_sprites.add(archer1)
     all_sprites.add(all_skeletons)
