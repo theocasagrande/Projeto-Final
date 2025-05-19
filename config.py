@@ -39,3 +39,4 @@ PLAYER_HIT_RECT = pygame.Rect(0,0,64,64)
 
 ICE_ATTACK_DMG = 20
 ICE_ATTACK_RECT  = pygame.Rect(0,0,80,80)
+WIZARD_SPECIAL_RECT = pygame.Rect(0,0,64,64)

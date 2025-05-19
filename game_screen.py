@@ -6,6 +6,7 @@ from assets import load_assets
 import time
 from spritestheo import Skeleton, Wizard,  Camera, Wizard_attack_ice, collide_hit_rect, Obstacle
 from spriteszaltron import *
+from spritesbruno import *
 # ----- Cores
 vec = pygame.math.Vector2
 
@@ -70,6 +71,8 @@ def game_screen(window):
     
 
     camera = Camera(assets['map_width'], assets['map_height'])
+    knight = Knight(15,15,'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+    all_sprites.add(knight)
     all_sprites.add(wizard1)
     # all_sprites.add(archer1)
     all_sprites.add(all_skeletons)
@@ -111,8 +114,6 @@ def game_screen(window):
                 wizard1.last_hit_time = now  # Atualiza o tempo do último hit
                 if wizard1.health <= 0:
                     return QUIT
-            # if selfhits:
-            #     wizard1.pos += vec(MOB_KNOCKBACK).rotate(-selfhits[0].rot)
         
         window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
