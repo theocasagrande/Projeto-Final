@@ -4,7 +4,7 @@ from os import path
 from config import *
 from assets import load_assets
 import time
-from spritestheo import Skeleton, Wizard, Wall, Camera, Wizard_attack_ice, collide_hit_rect
+from spritestheo import Skeleton, Wizard,  Camera, Wizard_attack_ice, collide_hit_rect, Obstacle
 from spriteszaltron import *
 # ----- Cores
 vec = pygame.math.Vector2
@@ -56,7 +56,15 @@ def game_screen(window):
     #             skeleton1 = Skeleton(col, row, 'idle', wizard1, game_walls)
     #             all_skeletons.add(skeleton1)
     #             all_sprites.add(skeleton1)
-    wizard1 = Wizard(10, 5, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+
+    for tile_object in assets['map'].tmxdata.objects:
+        if tile_object.name == 'player':
+            wizard1 = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+        if tile_object.name == 'wall':
+            wall =Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
+            all_sprites.add(wall)
+            game_walls.add(wall)
+
     camera = Camera(assets['map_width'], assets['map_height'])
     skeleton1 = Skeleton(15, 15, 'idle', wizard1, game_walls, assets)
     skeleton2 = Skeleton(20, 15, 'idle', wizard1, game_walls, assets)
@@ -86,6 +94,8 @@ def game_screen(window):
                 sprite.update(dt)
             elif isinstance(sprite, Skeleton):
                 sprite.update(dt)
+            elif isinstance(sprite, Obstacle):
+                continue
             else:
                 sprite.update()
         camera.update(wizard1)
@@ -125,7 +135,6 @@ def game_screen(window):
             health_width = (skeleton.health / SKELETON_HEALTH) * skeleton.rect.width
             current_health_pos = pygame.Rect(pos.x, pos.y - 10, health_width, 5)
             pygame.draw.rect(window, (0, 255, 0), current_health_pos)
-
 
         draw_player_health(window, 10, 10, wizard1.health / PLAYER_HEALTH)
         pygame.display.update()

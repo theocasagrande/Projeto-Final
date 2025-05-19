@@ -24,7 +24,7 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_idle0{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['wizard_idle'].append(img)
-    assets['map'] = TiledMap(path.join(MAP_DIR, 'dungeonmap1.tmx'), scale=4)  # 16 * 4 = 64
+    assets['map'] = TiledMap(path.join(MAP_DIR, 'dungeonmap1.tmx'), SCALE)  # 16 * 4 = 64
     assets['map_surface'] = assets['map'].make_map()
     assets['map_rect'] = assets['map_surface'].get_rect()
     assets['map_width'] = assets['map'].width

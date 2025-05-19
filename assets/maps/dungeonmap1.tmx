@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="10">
  <tileset firstgid="1" source="../mainlevbuild.tsx"/>
  <tileset firstgid="2561" source="../decorative.tsx"/>
  <layer id="1" name="Background" width="100" height="100">
@@ -626,4 +626,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="7" name="Obstacles">
+  <object id="5" name="wall" x="-0.5" y="201.5" width="210" height="18"/>
+  <object id="6" name="wall" x="196" y="204" width="12" height="268"/>
+  <object id="7" name="wall" x="0" y="4" width="296" height="76"/>
+  <object id="8" name="wall" x="284" y="80" width="12" height="232"/>
+  <object id="9" name="player" x="60" y="144"/>
+ </objectgroup>
 </map>

@@ -190,7 +190,7 @@ class Wizard(pygame.sprite.Sprite):
         self.all_projectiles = all_projectiles
 
         self.vel = vec(0, 0)
-        self.pos = vec(x * TILESIZE, y * TILESIZE)
+        self.pos = vec(x, y)
         self.state = state
         self.frame_rate = 100
         self.original_frames = self.assets['wizard_idle']  
@@ -424,17 +424,29 @@ class Wizard(pygame.sprite.Sprite):
         self.rect.center = old_center
         self.hit_rect.center = self.rect.center
 
-class Wall(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+# class Wall(pygame.sprite.Sprite):
+#     def __init__(self, x, y):
+#         pygame.sprite.Sprite.__init__(self)
+#         self.assets = load_assets()
+#         self.image = self.assets['wall_tile']
+#         self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
+#         self.rect = self.image.get_rect()   
+#         self.x = x
+#         self.y = y
+#         self.rect.x = x * TILESIZE
+#         self.rect.y = y * TILESIZE
+
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
         pygame.sprite.Sprite.__init__(self)
-        self.assets = load_assets()
-        self.image = self.assets['wall_tile']
-        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
-        self.rect = self.image.get_rect()   
+        self.rect = pygame.Rect(x,y,width,height)  
+        self.hit_rect = self.rect
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)  # Suporta transparência
+        self.image.fill((0, 0, 0, 0))
         self.x = x
         self.y = y
-        self.rect.x = x * TILESIZE
-        self.rect.y = y * TILESIZE
+        self.rect.x = x
+        self.rect.y = y
 
 
 class Camera:

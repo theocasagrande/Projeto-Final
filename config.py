@@ -15,6 +15,8 @@ FPS = 60 # Frames por segundo
 
 LIGHTGRAY = (200, 200, 200)
 
+SCALE = 4
+
 INIT = 3
 GAME = 1
 QUIT = 2
