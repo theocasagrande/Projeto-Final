@@ -324,7 +324,7 @@ class Wizard(pygame.sprite.Sprite):
             old_center = self.rect.center
             self.rect = self.image.get_rect()
             self.rect.center = old_center
-            ice_attack = Wizard_attack_ice(self,self.pos, self.direction, self.all_skeletons)
+            ice_attack = Wizard_attack_ice(self,self.pos, self.direction, self.all_skeletons, self.assets)
             self.all_sprites.add(ice_attack)
             self.all_projectiles.add(ice_attack)
         
@@ -404,9 +404,9 @@ class Camera:
     
 class Wizard_attack_ice(pygame.sprite.Sprite):
     # Construtor da classe.
-    def __init__(self, player, center, direction, all_skeletons):
+    def __init__(self, player, center, direction, all_skeletons, assets):
         pygame.sprite.Sprite.__init__(self)
-        self.assets = load_assets()
+        self.assets = assets
         self.all_skeletons = all_skeletons
         self.player = player
         self.animation_frames = self.assets['wizard_attack_ice']
