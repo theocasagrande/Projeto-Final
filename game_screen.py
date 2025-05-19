@@ -4,7 +4,7 @@ from os import path
 from config import *
 from assets import load_assets
 import time
-from spritestheo import Skeleton, Wizard, Wall, Camera, Wizard_attack_ice
+from spritestheo import Skeleton, Wizard, Wall, Camera, Wizard_attack_ice, collide_hit_rect
 from spriteszaltron import *
 # ----- Cores
 vec = pygame.math.Vector2
@@ -58,9 +58,9 @@ def game_screen(window):
     #             all_sprites.add(skeleton1)
     wizard1 = Wizard(10, 5, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
     camera = Camera(assets['map_width'], assets['map_height'])
-    skeleton1 = Skeleton(15, 15, 'idle', wizard1, game_walls)
-    skeleton2 = Skeleton(20, 15, 'idle', wizard1, game_walls)
-    skeleton3 = Skeleton(15, 20, 'idle', wizard1, game_walls)
+    skeleton1 = Skeleton(15, 15, 'idle', wizard1, game_walls, assets)
+    skeleton2 = Skeleton(20, 15, 'idle', wizard1, game_walls, assets)
+    skeleton3 = Skeleton(15, 20, 'idle', wizard1, game_walls, assets)
     all_skeletons.add(skeleton1)
     all_skeletons.add(skeleton2)
     all_skeletons.add(skeleton3)
@@ -89,22 +89,30 @@ def game_screen(window):
             else:
                 sprite.update()
         camera.update(wizard1)
+        now = pygame.time.get_ticks()
         for skeleton in all_skeletons:
             if skeleton.health <= 0:
                 skeleton.kill()
-            selfhits = pygame.sprite.spritecollide(wizard1, all_skeletons, False, pygame.sprite.collide_rect )
-            for hit in selfhits:
-                    wizard1.health -= MOB_DAMAGE
-                    hit.vel = vec(0,0)
-                    wizard1.state = 'hurt'
-                    if wizard1.health <= 0:
-                        return QUIT
-            if selfhits:
-                wizard1.pos += vec(MOB_KNOCKBACK).rotate(-selfhits[0].rot)
+
+        selfhits = pygame.sprite.spritecollide(wizard1, all_skeletons, False, collide_hit_rect)
+        for hit in selfhits:
+            if now - wizard1.last_hit_time > 1000:  # 1000 ms = 1 segundo
+                wizard1.health -= MOB_DAMAGE
+                hit.vel = vec(0, 0)
+                wizard1.state = 'hurt'
+                wizard1.last_hit_time = now  # Atualiza o tempo do último hit
+                if wizard1.health <= 0:
+                    return QUIT
+            # if selfhits:
+            #     wizard1.pos += vec(MOB_KNOCKBACK).rotate(-selfhits[0].rot)
         
         window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
+            if hasattr(sprite, 'hit_rect'):
+                pygame.draw.rect(window, (255, 0, 0), camera.apply_rect(sprite.hit_rect), 1)
+            else:
+                pygame.draw.rect(window, (0, 255, 0), camera.apply_rect(sprite.rect), 1)
 
         for skeleton in all_skeletons:
             # Calculate health bar position relative to camera

@@ -50,4 +50,14 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_hurt0{i}.png')).convert()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['wizard_hurt'].append(img)
+    assets['skeleton_walk'] = []
+    for i in range(1,9):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton', f'skeleton_walk0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_walk'].append(img)
+    assets['skeleton_attack'] = []
+    for i in range(1,7):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton', f'skeleton_attack0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_attack'].append(img)
     return assets
