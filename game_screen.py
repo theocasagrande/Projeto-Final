@@ -4,10 +4,27 @@ from os import path
 from config import *
 from assets import load_assets
 import time
-from spritestheo import Skeleton, Wizard, Wall, Camera, Wizard_attack_ice
+from spritestheo import Skeleton, Wizard,  Camera, Wizard_attack_ice, collide_hit_rect, Obstacle
 from spriteszaltron import *
 # ----- Cores
 vec = pygame.math.Vector2
+
+def draw_player_health(surface, x, y, pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 20
+    fill = pct * BAR_LENGTH
+    outline_rect = pygame.Rect(x,y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x,y, fill, BAR_HEIGHT)
+    if pct > 0.6:
+        col = (0, 255, 0)
+    elif pct > 0.3:
+        col = (255, 255, 0)
+    else:
+        col = (255, 0, 0)
+    pygame.draw.rect(surface, col, fill_rect)
+    pygame.draw.rect(surface, (255,255,255), outline_rect, 2)
 def game_screen(window):
     # ----- Inicia o jogo
     pygame.init()
@@ -24,25 +41,37 @@ def game_screen(window):
     game_walls = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
     all_projectiles = pygame.sprite.Group()
-    for row, tiles in enumerate(assets['map'].data):
-        for col, tile in enumerate(tiles):
-            if tile == '1':
-                wall = Wall(col, row)
-                all_sprites.add(wall)
-                game_walls.add(wall)
-            if tile == 'P':
-                wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
-                archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
-                all_sprites.add(wizard1)
-                all_sprites.add(archer1)
-            if tile == 'S':
-                skeleton1 = Skeleton(col, row, 'idle', wizard1)
-                all_skeletons.add(skeleton1)
-                all_sprites.add(skeleton1)
-    camera = Camera(assets['map_width'], assets['map_height'])
+    # for row, tiles in enumerate(assets['map'].data):
+    #     for col, tile in enumerate(tiles):
+    #         if tile == '1':
+    #             wall = Wall(col, row)
+    #             all_sprites.add(wall)
+    #             game_walls.add(wall)
+    #         if tile == 'P':
+    #             wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+    #             archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
+    #             all_sprites.add(wizard1)
+    #             all_sprites.add(archer1)
+    #         if tile == 'S':
+    #             skeleton1 = Skeleton(col, row, 'idle', wizard1, game_walls)
+    #             all_skeletons.add(skeleton1)
+    #             all_sprites.add(skeleton1)
+
+    for tile_object in assets['map'].tmxdata.objects:
+        if tile_object.name == 'player':
+            wizard1 = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+        if tile_object.name == 'wall':
+            wall =Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
+            all_sprites.add(wall)
+            game_walls.add(wall)
+        if tile_object.name == 'skeleton':
+            skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', wizard1, game_walls, assets)
+            all_skeletons.add(skeleton1)
     
+
+    camera = Camera(assets['map_width'], assets['map_height'])
     all_sprites.add(wizard1)
-    all_sprites.add(archer1)
+    # all_sprites.add(archer1)
     all_sprites.add(all_skeletons)
     # ----- Cria o relógio para controlar o FPS
     while state != DONE:
@@ -62,24 +91,51 @@ def game_screen(window):
             elif isinstance(sprite, Archer):
                 sprite.update(dt)
             elif isinstance(sprite, Skeleton):
-                sprite.draw_health()
-                sprite.update()
+                sprite.update(dt)
+            elif isinstance(sprite, Obstacle):
+                continue
             else:
                 sprite.update()
         camera.update(wizard1)
+        now = pygame.time.get_ticks()
         for skeleton in all_skeletons:
             if skeleton.health <= 0:
                 skeleton.kill()
-            selfhits = pygame.sprite.spritecollide(wizard1, all_skeletons, False, pygame.sprite.collide_rect )
-            for hit in selfhits:
-                if wizard1.state != 'hurt':
-                    wizard1.health -= MOB_DAMAGE
-                    hit.vel = vec(0,0)
-                    if wizard1.health <= 0:
-                        return QUIT
-        window.fill((169, 169, 169))
+
+        selfhits = pygame.sprite.spritecollide(wizard1, all_skeletons, False, collide_hit_rect)
+        for hit in selfhits:
+            if now - wizard1.last_hit_time > 1000:  # 1000 ms = 1 segundo
+                wizard1.health -= MOB_DAMAGE
+                hit.vel = vec(0, 0)
+                wizard1.state = 'hurt'
+                wizard1.last_hit_time = now  # Atualiza o tempo do último hit
+                if wizard1.health <= 0:
+                    return QUIT
+            # if selfhits:
+            #     wizard1.pos += vec(MOB_KNOCKBACK).rotate(-selfhits[0].rot)
+        
+        window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
+            if not isinstance(sprite, Obstacle):
+                if hasattr(sprite, 'hit_rect'):
+                    pygame.draw.rect(window, (255, 0, 0), camera.apply_rect(sprite.hit_rect), 1)
+                else:
+                    pygame.draw.rect(window, (0, 255, 0), camera.apply_rect(sprite.rect), 1)
+
+        for skeleton in all_skeletons:
+            # Calculate health bar position relative to camera
+            pos = camera.apply(skeleton)
+            health_pos = pygame.Rect(pos.x, pos.y - 10, skeleton.rect.width, 5)
+            
+            # Draw background (empty) health bar
+            pygame.draw.rect(window, (255, 0, 0), health_pos)
+            
+            health_width = (skeleton.health / SKELETON_HEALTH) * skeleton.rect.width
+            current_health_pos = pygame.Rect(pos.x, pos.y - 10, health_width, 5)
+            pygame.draw.rect(window, (0, 255, 0), current_health_pos)
+
+        draw_player_health(window, 10, 10, wizard1.health / PLAYER_HEALTH)
         pygame.display.update()
     return state
 
