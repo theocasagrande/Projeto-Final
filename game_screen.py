@@ -111,8 +111,6 @@ def game_screen(window):
                 wizard1.last_hit_time = now  # Atualiza o tempo do último hit
                 if wizard1.health <= 0:
                     return QUIT
-            # if selfhits:
-            #     wizard1.pos += vec(MOB_KNOCKBACK).rotate(-selfhits[0].rot)
         
         window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
