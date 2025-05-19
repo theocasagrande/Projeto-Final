@@ -206,10 +206,14 @@ class Wizard(pygame.sprite.Sprite):
         self.special_frames = self.assets['wizard_special']
         self.original_special_frames = list(self.special_frames)
 
+        self.speed_boost_frames = self.assets['wizard_speed_boost']
+        self.original_speed_boost_frames= list(self.speed_boost_frames)
+
         self.current_frame = 0
         self.current_frameiceattack = 0
         self.current_hurt_frame = 0
         self.current_special_frame = 0
+        self.current_speed_frame = 0
 
         self.hurt_duration = len(self.hurt_frames) * self.frame_rate
         self.image = self.animation_frames[self.current_frame]
@@ -218,7 +222,8 @@ class Wizard(pygame.sprite.Sprite):
         self.hit_rect.center = self.rect.center
         self.rect.center = self.pos 
         self.iceticks = 1000
-        self.specialticks = 2000
+        self.specialticks = 5000
+        self.speedticks = 15000
         self.last_ice_attack = pygame.time.get_ticks()
         self.last_special = pygame.time.get_ticks()
         self.direction = 'right'
@@ -229,6 +234,10 @@ class Wizard(pygame.sprite.Sprite):
         self.current_framewalk = 0
         self.health = PLAYER_HEALTH
         self.last_hit_time = 0
+        self.last_speed = 0
+        self.playerspeed = PLAYER_SPEED
+        self.speedboost_cooldown = 8000
+        self._layer = WIZARD_LAYER
         
       
 
@@ -251,51 +260,56 @@ class Wizard(pygame.sprite.Sprite):
                     for i in range(5):
                         self.special_attack()
                     self.last_special = pygame.time.get_ticks()
+            elif keys[pygame.K_c]:
+                if now - self.last_speed > self.speedticks:
+                    self.state = 'speed'
+                    self.speedboost()
+                
 
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
-            self.vel = vec(-1, -1)
+            self.vel = vec(-self.playerspeed, -self.playerspeed)
             self.direction = 'up_left'
             if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'walk'
         elif keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
-            self.vel = vec(1, -1)
+            self.vel = vec(self.playerspeed, -self.playerspeed)
             self.direction = 'up_right'
             if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'walk'
         elif keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
-            self.vel = vec(-1, 1)
+            self.vel = vec(-self.playerspeed, self.playerspeed)
             self.direction = 'down_left'
             if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'walk'
         elif keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
-            self.vel = vec(1, 1)
+            self.vel = vec(self.playerspeed, self.playerspeed)
             self.direction = 'down_right'
             if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'walk'
         else:
             if keys[pygame.K_LEFT]:
-                self.vel.x = -1
+                self.vel.x = -self.playerspeed
                 self.direction = 'left'
                 if self.state not in ('ice_attack', 'hurt', 'special'):
                     self.state = 'walk'
             if keys[pygame.K_RIGHT]:
-                self.vel.x = 1
+                self.vel.x = self.playerspeed
                 self.direction = 'right'
                 if self.state not in ('ice_attack', 'hurt', 'special'):
                     self.state = 'walk'
             if keys[pygame.K_UP]:
-                self.vel.y = -1
+                self.vel.y = -self.playerspeed
                 self.direction = 'up'
                 if self.state not in ('ice_attack', 'hurt', 'special'):
                     self.state = 'walk'
             if keys[pygame.K_DOWN]:
-                self.vel.y = 1
+                self.vel.y = self.playerspeed
                 self.direction = 'down'
                 if self.state not in ('ice_attack', 'hurt', 'special'):
                     self.state = 'walk'
                 
         if self.vel.length() != 0:
-            self.vel = self.vel.normalize() * PLAYER_SPEED
+            self.vel = self.vel.normalize() * self.playerspeed
         else:
             if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'idle'
@@ -329,7 +343,7 @@ class Wizard(pygame.sprite.Sprite):
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
 
-        if self.state == 'special':
+        if self.state in ('special', 'speed'):
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
                 self.current_special_frame += 1
@@ -404,6 +418,10 @@ class Wizard(pygame.sprite.Sprite):
         self.hit_rect.centery = self.pos.y
         self.rect.center = self.hit_rect.center
 
+        now2 = pygame.time.get_ticks()
+        if now2 - self.last_speed >= self.speedboost_cooldown:
+            self.playerspeed = PLAYER_SPEED
+
 
     def ice_attack(self):
             ice_attack = Wizard_attack_ice(self,self.pos, self.direction, self.all_skeletons, self.assets)
@@ -415,6 +433,14 @@ class Wizard(pygame.sprite.Sprite):
         self.all_sprites.add(specialattack)
         self.all_projectiles.add(specialattack)
         self.last_special = pygame.time.get_ticks()
+    def speedboost(self):
+        speedboost1 = SpeedBoost(self)
+        self.playerspeed *= 1.75
+        self.all_sprites.add(speedboost1, layer=speedboost1._layer)
+        self.last_speed = pygame.time.get_ticks()
+        
+
+
 
 
         
@@ -505,10 +531,9 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
     # Construtor da classe.
     def __init__(self, player, center, direction, all_skeletons, assets):
         pygame.sprite.Sprite.__init__(self)
-        self.assets = assets
         self.all_skeletons = all_skeletons
         self.player = player
-        self.animation_frames = self.assets['wizard_attack_ice']
+        self.animation_frames = assets['wizard_attack_ice']
         self.image = self.animation_frames[0]
         self.rect = self.image.get_rect()
         self.hit_rect = ICE_ATTACK_RECT.copy()
@@ -556,7 +581,6 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
             self.current_frame += 1
             if self.current_frame == len(self.animation_frames):
                 self.kill()
-                self.collided = False
             else:
                 self.image = self.animation_frames[self.current_frame]
                 old_center = self.rect.center
@@ -624,3 +648,39 @@ class WizardSpecial(pygame.sprite.Sprite):
             if skeleton not in self.damaged_enemies:
                 skeleton.health -= WIZARD_SPECIAL_DMG
                 self.damaged_enemies.add(skeleton)
+
+
+class SpeedBoost(pygame.sprite.Sprite):
+    def __init__(self, player):
+        pygame.sprite.Sprite.__init__(self)
+        self.player = player
+        self.animation_frames = player.assets['wizard_speed_boost']
+        self.image = self.animation_frames[0]
+        self.rect = self.image.get_rect()
+        self.hit_rect = self.rect
+        self.current_frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 100
+        self.time = pygame.time.get_ticks()
+        self._layer = SPEEDBOOST_LAYER
+
+
+
+
+    def update(self):
+        self.rect.center = self.player.rect.midbottom
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            self.current_frame += 1
+
+            if now - self.time >= 8000:
+                self.kill()
+            if self.current_frame == len(self.animation_frames):
+                self.current_frame = 0
+            else:
+                self.image = self.animation_frames[self.current_frame]
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = old_center
+                self.hit_rect.center = self.rect.center

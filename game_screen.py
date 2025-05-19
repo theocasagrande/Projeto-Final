@@ -38,7 +38,7 @@ def game_screen(window):
     DONE = 0
     PLAYING = 1
     state = PLAYING
-    all_sprites = pygame.sprite.Group()
+    all_sprites = pygame.sprite.LayeredUpdates()
     game_walls = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
     all_projectiles = pygame.sprite.Group()
@@ -73,9 +73,10 @@ def game_screen(window):
     camera = Camera(assets['map_width'], assets['map_height'])
     # knight = Knight(15,15,'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
     # all_sprites.add(knight)
-    all_sprites.add(wizard1)
+    all_sprites.add(wizard1, layer = wizard1._layer)
     # all_sprites.add(archer1)
     all_sprites.add(all_skeletons)
+
     # ----- Cria o relógio para controlar o FPS
     while state != DONE:
 
