@@ -64,14 +64,12 @@ def game_screen(window):
             wall =Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
             all_sprites.add(wall)
             game_walls.add(wall)
+        if tile_object.name == 'skeleton':
+            skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', wizard1, game_walls, assets)
+            all_skeletons.add(skeleton1)
+    
 
     camera = Camera(assets['map_width'], assets['map_height'])
-    skeleton1 = Skeleton(15, 15, 'idle', wizard1, game_walls, assets)
-    skeleton2 = Skeleton(20, 15, 'idle', wizard1, game_walls, assets)
-    skeleton3 = Skeleton(15, 20, 'idle', wizard1, game_walls, assets)
-    all_skeletons.add(skeleton1)
-    all_skeletons.add(skeleton2)
-    all_skeletons.add(skeleton3)
     all_sprites.add(wizard1)
     # all_sprites.add(archer1)
     all_sprites.add(all_skeletons)
@@ -119,10 +117,11 @@ def game_screen(window):
         window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
-            if hasattr(sprite, 'hit_rect'):
-                pygame.draw.rect(window, (255, 0, 0), camera.apply_rect(sprite.hit_rect), 1)
-            else:
-                pygame.draw.rect(window, (0, 255, 0), camera.apply_rect(sprite.rect), 1)
+            if not isinstance(sprite, Obstacle):
+                if hasattr(sprite, 'hit_rect'):
+                    pygame.draw.rect(window, (255, 0, 0), camera.apply_rect(sprite.hit_rect), 1)
+                else:
+                    pygame.draw.rect(window, (0, 255, 0), camera.apply_rect(sprite.rect), 1)
 
         for skeleton in all_skeletons:
             # Calculate health bar position relative to camera
