@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="135">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="140">
  <tileset firstgid="1" source="../mainlevbuild.tsx"/>
  <tileset firstgid="2561" source="../decorative.tsx"/>
  <layer id="1" name="Background" width="100" height="100">
@@ -752,5 +752,10 @@
   <object id="130" name="skeleton" x="268" y="424"/>
   <object id="133" name="skeleton" x="332" y="424"/>
   <object id="134" name="skeleton" x="388" y="424"/>
+  <object id="135" name="wall" x="1268" y="1540" width="36" height="28"/>
+  <object id="136" name="wall" x="1328" y="1520" width="16" height="52"/>
+  <object id="137" name="wall" x="1232" y="1520" width="16" height="52"/>
+  <object id="138" name="wall" x="1532" y="1392" width="24" height="48"/>
+  <object id="139" name="wall" x="1532" y="1500" width="24" height="56"/>
  </objectgroup>
 </map>

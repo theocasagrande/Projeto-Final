@@ -193,15 +193,24 @@ class Wizard(pygame.sprite.Sprite):
         self.pos = vec(x, y)
         self.state = state
         self.frame_rate = 100
+
         self.original_frames = self.assets['wizard_idle']  
         self.animation_frames = list(self.original_frames)
+
         self.ice_attack_frames = self.assets['wizard_attack_ice_anim']
         self.original_ice_attack_frames = list(self.ice_attack_frames)
+
         self.hurt_frames = self.assets['wizard_hurt']
         self.original_hurt_frames = list(self.hurt_frames)
+
+        self.special_frames = self.assets['wizard_special']
+        self.original_special_frames = list(self.special_frames)
+
         self.current_frame = 0
         self.current_frameiceattack = 0
         self.current_hurt_frame = 0
+        self.current_special_frame = 0
+
         self.hurt_duration = len(self.hurt_frames) * self.frame_rate
         self.image = self.animation_frames[self.current_frame]
         self.rect = self.image.get_rect()
@@ -209,7 +218,9 @@ class Wizard(pygame.sprite.Sprite):
         self.hit_rect.center = self.rect.center
         self.rect.center = self.pos 
         self.iceticks = 1000
+        self.specialticks = 15000
         self.last_ice_attack = pygame.time.get_ticks()
+        self.last_special = pygame.time.get_ticks()
         self.direction = 'right'
         self.prev_direction = None
         self.last_update = pygame.time.get_ticks()
@@ -226,58 +237,64 @@ class Wizard(pygame.sprite.Sprite):
     def get_keys(self):
         self.vel = vec(0, 0)
         keys = pygame.key.get_pressed()
-
+        now = pygame.time.get_ticks()
         if self.state != 'hurt':
             if keys[pygame.K_SPACE]:
-                self.state = 'ice_attack'
-                self.ice_attack()
-        # Handle diagonals first
+                if now - self.last_ice_attack > self.iceticks:
+                    self.state = 'ice_attack'
+                    self.ice_attack()
+                    self.last_ice_attack = pygame.time.get_ticks()
+            elif keys[pygame.K_f]:
+                if now - self.last_special > self.specialticks:
+                    self.state = 'special'
+                    self.last_special = pygame.time.get_ticks()
+
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
             self.vel = vec(-1, -1)
             self.direction = 'up_left'
-            if self.state not in ('ice_attack', 'hurt'):
+            if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'walk'
         elif keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
             self.vel = vec(1, -1)
             self.direction = 'up_right'
-            if self.state not in ('ice_attack', 'hurt'):
+            if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'walk'
         elif keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
             self.vel = vec(-1, 1)
             self.direction = 'down_left'
-            if self.state not in ('ice_attack', 'hurt'):
+            if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'walk'
         elif keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
             self.vel = vec(1, 1)
             self.direction = 'down_right'
-            if self.state not in ('ice_attack', 'hurt'):
+            if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'walk'
         else:
             if keys[pygame.K_LEFT]:
                 self.vel.x = -1
                 self.direction = 'left'
-                if self.state not in ('ice_attack', 'hurt'):
+                if self.state not in ('ice_attack', 'hurt', 'special'):
                     self.state = 'walk'
             if keys[pygame.K_RIGHT]:
                 self.vel.x = 1
                 self.direction = 'right'
-                if self.state not in ('ice_attack', 'hurt'):
+                if self.state not in ('ice_attack', 'hurt', 'special'):
                     self.state = 'walk'
             if keys[pygame.K_UP]:
                 self.vel.y = -1
                 self.direction = 'up'
-                if self.state not in ('ice_attack', 'hurt'):
+                if self.state not in ('ice_attack', 'hurt', 'special'):
                     self.state = 'walk'
             if keys[pygame.K_DOWN]:
                 self.vel.y = 1
                 self.direction = 'down'
-                if self.state not in ('ice_attack', 'hurt'):
+                if self.state not in ('ice_attack', 'hurt', 'special'):
                     self.state = 'walk'
                 
         if self.vel.length() != 0:
             self.vel = self.vel.normalize() * PLAYER_SPEED
         else:
-            if self.state not in ('ice_attack', 'hurt'):
+            if self.state not in ('ice_attack', 'hurt', 'special'):
                 self.state = 'idle'
             self.vel = vec(0, 0)
 
@@ -309,6 +326,21 @@ class Wizard(pygame.sprite.Sprite):
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
 
+        if self.state == 'special':
+            if now - self.last_update > self.frame_rate:
+                self.last_update = now
+                self.current_special_frame += 1
+                if self.current_special_frame >= len(self.special_frames):
+                    self.state = 'idle'
+                    self.current_special_frame = 0
+                self.image = self.special_frames[self.current_special_frame]
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = old_center
+                self.hit_rect.centerx = self.pos.x
+                self.hit_rect.centery = self.pos.y
+                self.rect.center = self.hit_rect.center
+
         if self.state == 'hurt':
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
@@ -323,8 +355,10 @@ class Wizard(pygame.sprite.Sprite):
                 self.hit_rect.centerx = self.pos.x
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
+        
+        
 
-        if self.state not in ('ice_attack', 'hurt'):
+        if self.state not in ('ice_attack', 'hurt', 'special'):
           
             if self.state == 'walk':
                 frames = self.walk_frames
@@ -409,6 +443,11 @@ class Wizard(pygame.sprite.Sprite):
             for img in self.original_hurt_frames
         ]
         
+        self.special_frames = [
+            pygame.transform.flip(img, flip, False)
+            for img in self.original_special_frames
+        ]
+        
  
         if self.state == 'walk':
             self.image = self.walk_frames[self.current_framewalk]
@@ -416,6 +455,8 @@ class Wizard(pygame.sprite.Sprite):
             self.image = self.ice_attack_frames[self.current_frameiceattack]
         elif self.state == 'hurt':
             self.image = self.hurt_frames[self.current_hurt_frame]
+        elif self.state == 'special':
+            self.image = self.special_frames[self.current_special_frame]
         else:
             self.image = self.animation_frames[self.current_frame]
       
@@ -424,17 +465,7 @@ class Wizard(pygame.sprite.Sprite):
         self.rect.center = old_center
         self.hit_rect.center = self.rect.center
 
-# class Wall(pygame.sprite.Sprite):
-#     def __init__(self, x, y):
-#         pygame.sprite.Sprite.__init__(self)
-#         self.assets = load_assets()
-#         self.image = self.assets['wall_tile']
-#         self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
-#         self.rect = self.image.get_rect()   
-#         self.x = x
-#         self.y = y
-#         self.rect.x = x * TILESIZE
-#         self.rect.y = y * TILESIZE
+
 
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
@@ -495,7 +526,7 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
         if target and distance <= 5*TILESIZE:
             self.rect.center = target.rect.center
         else:
-            # Calculate direction-based offset
+            
             offset = vec(0, 0)
             if direction == 'right':
                 offset = vec(5*TILESIZE, 0)
