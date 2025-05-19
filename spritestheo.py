@@ -399,6 +399,9 @@ class Camera:
         x = max(-(self.width - WIDTH), x)
         y = max(-(self.height - HEIGHT), y)
         self.camera = pygame.Rect(x, y, self.width, self.height)
+    def apply_rect(self, rect):
+        return rect.move(self.camera.topleft)
+    
 class Wizard_attack_ice(pygame.sprite.Sprite):
     # Construtor da classe.
     def __init__(self, player, center, direction, all_skeletons):

@@ -6,6 +6,7 @@ IMG_DIR = path.join(path.dirname(__file__), 'assets', 'img')
 SND_DIR = path.join(path.dirname(__file__), 'assets', 'snd')
 FNT_DIR = path.join(path.dirname(__file__), 'assets', 'font')
 ANIM_DIR = path.join(path.dirname(__file__), 'assets', 'anim')
+MAP_DIR = path.join(path.dirname(__file__), 'assets', 'maps')
 # Estabelece a pasta que contem os arquivos de configuração.
 # Dados gerais do jogo.
 WIDTH = 1280  # Largura da tela 80 grids

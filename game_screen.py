@@ -41,25 +41,26 @@ def game_screen(window):
     game_walls = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
     all_projectiles = pygame.sprite.Group()
-    for row, tiles in enumerate(assets['map'].data):
-        for col, tile in enumerate(tiles):
-            if tile == '1':
-                wall = Wall(col, row)
-                all_sprites.add(wall)
-                game_walls.add(wall)
-            if tile == 'P':
-                wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
-                archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
-                all_sprites.add(wizard1)
-                all_sprites.add(archer1)
-            if tile == 'S':
-                skeleton1 = Skeleton(col, row, 'idle', wizard1, game_walls)
-                all_skeletons.add(skeleton1)
-                all_sprites.add(skeleton1)
+    # for row, tiles in enumerate(assets['map'].data):
+    #     for col, tile in enumerate(tiles):
+    #         if tile == '1':
+    #             wall = Wall(col, row)
+    #             all_sprites.add(wall)
+    #             game_walls.add(wall)
+    #         if tile == 'P':
+    #             wizard1 = Wizard(col, row, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+    #             archer1 = Archer(col, row, 'idle', all_sprites, game_walls)
+    #             all_sprites.add(wizard1)
+    #             all_sprites.add(archer1)
+    #         if tile == 'S':
+    #             skeleton1 = Skeleton(col, row, 'idle', wizard1, game_walls)
+    #             all_skeletons.add(skeleton1)
+    #             all_sprites.add(skeleton1)
+    wizard1 = Wizard(10, 5, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
     camera = Camera(assets['map_width'], assets['map_height'])
     
     all_sprites.add(wizard1)
-    all_sprites.add(archer1)
+    # all_sprites.add(archer1)
     all_sprites.add(all_skeletons)
     # ----- Cria o relógio para controlar o FPS
     while state != DONE:
@@ -96,8 +97,7 @@ def game_screen(window):
             if selfhits:
                 wizard1.pos += vec(MOB_KNOCKBACK).rotate(-selfhits[0].rot)
         
-        window.fill((169, 169, 169))
-
+        window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
 
