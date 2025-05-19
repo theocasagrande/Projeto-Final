@@ -21,6 +21,15 @@ class Knight(pygame.sprite.Sprite):
         self.prev_direction = None
         self.last_update = pygame.time.get_ticks()
 
+        self.idle_frames = self.assets['knight_idle']  
+        self.iwalk_frames = self.assets['knight_walk']
+        self.attack_frames = self.assets['knight_attack']
+        self.special_frames = self.assets['knight_special']
+        self.hurt_frames = self.assets['wizard_hurt']
+
+        self.special_frames = self.assets['wizard_special']
+        self.original_special_frames = list(self.special_frames)
+
         self.idle_frames = [self.load_knight_img(f"knightidle0{i}") for i in range(1, 7)]
         self.walk_frames = [self.load_knight_img(f"knightwalk0{str(i).zfill(2)}") for i in range(11, 19)]
         self.attack_frames = [self.load_knight_img(f"kinghtat0{i}") for i in range(1, 7)]
@@ -48,7 +57,7 @@ class Knight(pygame.sprite.Sprite):
         self.last_special = 0
 
     def load_knight_img(self, name):
-        path_img = os.path.join("assetsBruno", name + ".png")
+        path_img = os.path.join("assersBruno", name + ".png")
         img = pygame.image.load(path_img).convert_alpha()
         return pygame.transform.scale(img, (TILESIZE, TILESIZE))
 

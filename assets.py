@@ -70,4 +70,29 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_special_effect{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['wizard_special_effect'].append(img)
+    assets['knight_idle'] = []
+    for i in range(1,7):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightidle0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['knight_idle'].append(img)
+    
+    assets['knight_walk'] = []
+    for i in range(1, 8):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knighwalk01{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['knight_walk'].append(img)
+    
+
+    assets['knight_attack'] = []
+    for i in range(1, 7):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['knight_attack'].append(img)
+    assets['knight_special'] = []
+    for i in range(1, 12):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['knight_special'].append(img)
     return assets
+
+    
