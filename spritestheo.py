@@ -218,7 +218,7 @@ class Wizard(pygame.sprite.Sprite):
         self.hit_rect.center = self.rect.center
         self.rect.center = self.pos 
         self.iceticks = 1000
-        self.specialticks = 15000
+        self.specialticks = 8000
         self.last_ice_attack = pygame.time.get_ticks()
         self.last_special = pygame.time.get_ticks()
         self.direction = 'right'
@@ -247,6 +247,8 @@ class Wizard(pygame.sprite.Sprite):
             elif keys[pygame.K_f]:
                 if now - self.last_special > self.specialticks:
                     self.state = 'special'
+                    for i in range(5):
+                        self.special_attack()
                     self.last_special = pygame.time.get_ticks()
 
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
@@ -403,20 +405,16 @@ class Wizard(pygame.sprite.Sprite):
 
 
     def ice_attack(self):
-        
-        now = pygame.time.get_ticks()
-        elapsed_ticks = now - self.last_ice_attack
-        if elapsed_ticks > self.iceticks:
-            self.last_ice_attack = now
-            self.current_frameiceattack = 0
-            self.last_update = pygame.time.get_ticks()
-            self.image = self.ice_attack_frames[0]
-            old_center = self.rect.center
-            self.rect = self.image.get_rect()
-            self.rect.center = old_center
             ice_attack = Wizard_attack_ice(self,self.pos, self.direction, self.all_skeletons, self.assets)
             self.all_sprites.add(ice_attack)
             self.all_projectiles.add(ice_attack)
+    
+    def special_attack(self):
+        specialattack = WizardSpecial(self, self.rect.center, self.all_skeletons, self.assets)
+        self.all_sprites.add(specialattack)
+        self.all_projectiles.add(specialattack)
+
+
         
 
     def rotate_image(self, direction):
@@ -591,10 +589,13 @@ class WizardSpecial(pygame.sprite.Sprite):
         self.frame_rate = 100
 
 
+        self.rect.center = center
+        self.rect.centerx = center[0]
+        self.rect.centery = center[1]
+        self.rect.centerx += random.randint(-2*TILESIZE,2*TILESIZE)
+        self.rect.centery += random.randint(-2*TILESIZE, 2*TILESIZE)
+        self.hit_rect.center = self.rect.center
 
-        self.centerx += random.randint(-5*TILESIZE,5*TILESIZE)
-        self.centery += random.randint(-5*TILESIZE, 5*TILESIZE)
-         
 
 
     def update(self):
@@ -620,5 +621,5 @@ class WizardSpecial(pygame.sprite.Sprite):
         )
         for skeleton in hits:
             if skeleton not in self.damaged_enemies:
-                skeleton.health -= ICE_ATTACK_DMG
+                skeleton.health -= WIZARD_SPECIAL_DMG
                 self.damaged_enemies.add(skeleton)
