@@ -3,7 +3,7 @@ import os
 from config import *
 from assets import load_assets
 from game_screen import *
-from spritestheo import distance_to, collision   
+from spritestheo import distance_to, collision, collide_hit_rect
 vec = pygame.math.Vector2
 class Knight(pygame.sprite.Sprite):
     def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons, all_projectiles):
@@ -22,7 +22,7 @@ class Knight(pygame.sprite.Sprite):
         self.last_update = pygame.time.get_ticks()
 
         self.idle_frames = self.assets['knight_idle']  
-        self.iwalk_frames = self.assets['knight_walk']
+        self.walk_frames = self.assets['knight_walk']
         self.attack_frames = self.assets['knight_attack']
         self.special_frames = self.assets['knight_special']
         self.hurt_frames = self.assets['wizard_hurt']
@@ -51,11 +51,9 @@ class Knight(pygame.sprite.Sprite):
         self.special_cooldown = 5000
         self.last_attack = 0
         self.last_special = 0
+        self.playerspeed = PLAYER_SPEED
+        self.damaged_enemies = set()
 
-    def load_knight_img(self, name):
-        path_img = os.path.join("assersBruno", name + ".png")
-        img = pygame.image.load(path_img).convert_alpha()
-        return pygame.transform.scale(img, (TILESIZE, TILESIZE))
 
     def get_keys(self):
         self.vel = vec(0, 0)
@@ -72,18 +70,47 @@ class Knight(pygame.sprite.Sprite):
                 self.last_special = now
                 self.current_special_frame = 0
 
-        if keys[pygame.K_LEFT]:
-            self.vel.x = -1
-            self.direction = 'left'
-        elif keys[pygame.K_RIGHT]:
-            self.vel.x = 1
-            self.direction = 'right'
-        if keys[pygame.K_UP]:
-            self.vel.y = -1
-            self.direction = 'up'
-        elif keys[pygame.K_DOWN]:
-            self.vel.y = 1
-            self.direction = 'down'
+        if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
+            self.vel = vec(-self.playerspeed, -self.playerspeed)
+            self.direction = 'up_left'
+            if self.state not in ('attack', 'hurt', 'special'):
+                self.state = 'walk'
+        elif keys[pygame.K_UP] and keys[pygame.K_RIGHT]:
+            self.vel = vec(self.playerspeed, -self.playerspeed)
+            self.direction = 'up_right'
+            if self.state not in ('attack', 'hurt', 'special'):
+                self.state = 'walk'
+        elif keys[pygame.K_DOWN] and keys[pygame.K_LEFT]:
+            self.vel = vec(-self.playerspeed, self.playerspeed)
+            self.direction = 'down_left'
+            if self.state not in ('attack', 'hurt', 'special'):
+                self.state = 'walk'
+        elif keys[pygame.K_DOWN] and keys[pygame.K_RIGHT]:
+            self.vel = vec(self.playerspeed, self.playerspeed)
+            self.direction = 'down_right'
+            if self.state not in ('attack', 'hurt', 'special'):
+                self.state = 'walk'
+        else:
+            if keys[pygame.K_LEFT]:
+                self.vel.x = -self.playerspeed
+                self.direction = 'left'
+                if self.state not in ('attack', 'hurt', 'special'):
+                    self.state = 'walk'
+            if keys[pygame.K_RIGHT]:
+                self.vel.x = self.playerspeed
+                self.direction = 'right'
+                if self.state not in ('attack', 'hurt', 'special'):
+                    self.state = 'walk'
+            if keys[pygame.K_UP]:
+                self.vel.y = -self.playerspeed
+                self.direction = 'up'
+                if self.state not in ('attack', 'hurt', 'special'):
+                    self.state = 'walk'
+            if keys[pygame.K_DOWN]:
+                self.vel.y = self.playerspeed
+                self.direction = 'down'
+                if self.state not in ('attack', 'hurt', 'special'):
+                    self.state = 'walk'
 
         if self.vel.length() > 0:
             self.vel = self.vel.normalize() * PLAYER_SPEED
@@ -104,20 +131,20 @@ class Knight(pygame.sprite.Sprite):
                     self.image = self.attack_frames[self.current_attack_frame]
                     self.current_attack_frame += 1
                     if self.current_attack_frame == 3:
-                            self.damage_nearby_enemies(ICE_ATTACK_DMG)
+                            self.damage_nearby_enemies(KNIGHT_ATTACK_DMG)
                 else:
                     self.state = 'idle'
 
-            elif self.state == 'special':
-                if now - self.last_update > self.frame_rate:
-                    self.last_update = now
-                    if self.current_special_frame < len(self.special_frames):
-                        self.image = self.special_frames[self.current_special_frame]
-                        self.current_special_frame += 1
-                        if self.current_special_frame == 5:
-                            self.damage_nearby_enemies(ICE_ATTACK_DMG * 2)
-                    else:
-                        self.state = 'idle'
+        elif self.state == 'special':
+            if now - self.last_update > self.frame_rate:
+                self.last_update = now
+                if self.current_special_frame < len(self.special_frames):
+                    self.image = self.special_frames[self.current_special_frame]
+                    self.current_special_frame += 1
+                    if self.current_special_frame == 5:
+                        self.damage_nearby_enemies(KNIGHT_ATTACK_DMG * 2)
+                else:
+                    self.state = 'idle'
 
         elif self.state in ('idle', 'walk'):
                 frames = self.idle_frames if self.state == 'idle' else self.walk_frames
@@ -134,10 +161,12 @@ class Knight(pygame.sprite.Sprite):
         collision(self, self.game_walls, 'y')
         self.rect.center = self.hit_rect.center
 
-        def damage_nearby_enemies(self, dmg):
-            for skeleton in self.all_skeletons:
-                if distance_to(self, skeleton) <= TILESIZE * 1.5:
-                    skeleton.health -= dmg
+    def damage_nearby_enemies(self):
+        hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
+        for skeleton in hits:
+            if skeleton not in self.damaged_enemies:
+                skeleton.health -= KNIGHT_ATTACK_DMG
+                self.damaged_enemies.add(skeleton)
 
 
 
