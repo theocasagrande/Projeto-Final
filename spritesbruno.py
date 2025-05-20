@@ -7,7 +7,7 @@ from spritestheo import distance_to, collision
 vec = pygame.math.Vector2
 class Knight(pygame.sprite.Sprite):
     def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons, all_projectiles):
-        pygame.sprite.Sprite.__init__(self, all_sprites)
+        pygame.sprite.Sprite.__init__(self)
         self.assets = load_assets()
         self.game_walls = game_walls
         self.all_sprites = all_sprites
@@ -30,10 +30,6 @@ class Knight(pygame.sprite.Sprite):
         self.special_frames = self.assets['wizard_special']
         self.original_special_frames = list(self.special_frames)
 
-        self.idle_frames = [self.load_knight_img(f"knightidle0{i}") for i in range(1, 7)]
-        self.walk_frames = [self.load_knight_img(f"knightwalk0{str(i).zfill(2)}") for i in range(11, 19)]
-        self.attack_frames = [self.load_knight_img(f"kinghtat0{i}") for i in range(1, 7)]
-        self.special_frames = [self.load_knight_img(f"knightat2{str(i).zfill(2)}") for i in range(1, 12)]
 
         self.original_idle = list(self.idle_frames)
         self.original_walk = list(self.walk_frames)
@@ -142,5 +138,52 @@ class Knight(pygame.sprite.Sprite):
             for skeleton in self.all_skeletons:
                 if distance_to(self, skeleton) <= TILESIZE * 1.5:
                     skeleton.health -= dmg
+
+
+
+class Arrow(pygame.sprite.Sprite):
+     def __init__(self, x, y, direction, arrow_img):
+         pygame.sprite.Sprite.__init__(self)
+         self.original_image = arrow_img
+         self.image = self.rotate_image(direction)
+         self.rect = self.image.get_rect()
+         self.rect.center = (x, y)
+         self.speed = 100
+         self.direction = direction
+         self.vx, self.vy = self.get_velocity_vector(direction)
+     def rotate_image(self, direction):
+         if direction == 'up':
+             return pygame.transform.rotate(self.original_image, 0)
+         elif direction == 'down':
+             return pygame.transform.rotate(self.original_image, 180)
+         elif direction == 'left':
+             return pygame.transform.rotate(self.original_image, 90)
+         elif direction == 'right':
+             return pygame.transform.rotate(self.original_image, -90)
+         elif direction == 'up_left':
+             return pygame.transform.rotate(self.original_image, 45)
+         elif direction == 'up_right':
+             return pygame.transform.rotate(self.original_image, -45)
+         elif direction == 'down_left':
+             return pygame.transform.rotate(self.original_image, 135)
+         elif direction == 'down_right':
+             return pygame.transform.rotate(self.original_image, -135)
+     def get_velocity_vector(self, direction):
+         if direction == 'up':
+             return (0, -1)
+         elif direction == 'down':
+             return (0, 1)
+         elif direction == 'left':
+             return (-1, 0)
+         elif direction == 'right':
+             return (1, 0)
+         elif direction == 'up_left':
+             return (-0.707, -0.707)
+         elif direction == 'up_right':
+             return (0.707, -0.707)
+         elif direction == 'down_left':
+             return (-0.707, 0.707)
+         elif direction == 'down_right':
+             return (-0.707, -0.707)
 
 
