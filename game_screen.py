@@ -73,7 +73,6 @@ def game_screen(window):
     camera = Camera(assets['map_width'], assets['map_height'])
     # knight = Knight(15,15,'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
     # all_sprites.add(knight)
-    all_sprites.add(wizard1, layer = wizard1._layer)
     # all_sprites.add(archer1)
     all_sprites.add(all_skeletons)
 

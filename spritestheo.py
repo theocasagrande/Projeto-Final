@@ -182,7 +182,7 @@ class Skeleton(pygame.sprite.Sprite):
         
 class Wizard(pygame.sprite.Sprite):
     def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons, all_projectiles):
-        pygame.sprite.Sprite.__init__(self, all_sprites)
+        pygame.sprite.Sprite.__init__(self)
         self.game_walls = game_walls
         self.all_sprites = all_sprites
         self.assets = load_assets()
@@ -223,7 +223,7 @@ class Wizard(pygame.sprite.Sprite):
         self.rect.center = self.pos 
         self.iceticks = 1000
         self.specialticks = 5000
-        self.speedticks = 15000
+        self.speedticks = 2000
         self.last_ice_attack = pygame.time.get_ticks()
         self.last_special = pygame.time.get_ticks()
         self.direction = 'right'
@@ -238,6 +238,7 @@ class Wizard(pygame.sprite.Sprite):
         self.playerspeed = PLAYER_SPEED
         self.speedboost_cooldown = 8000
         self._layer = WIZARD_LAYER
+        all_sprites.add(self, layer=self._layer)
         
       
 
@@ -668,7 +669,8 @@ class SpeedBoost(pygame.sprite.Sprite):
 
 
     def update(self):
-        self.rect.center = self.player.rect.midbottom
+        self.rect.centerx = self.player.rect.centerx
+        self.rect.centery = self.player.rect.centery + self.player.rect.height // 2
         now = pygame.time.get_ticks()
         if now - self.last_update > self.frame_rate:
             self.last_update = now
