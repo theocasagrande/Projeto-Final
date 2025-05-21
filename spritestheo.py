@@ -538,7 +538,6 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
         self.image = self.animation_frames[0]
         self.rect = self.image.get_rect()
         self.hit_rect = ICE_ATTACK_RECT.copy()
-        self.mask = pygame.mask.from_surface(self.image)
         self.damaged_enemies = set()
         self.current_frame = 0
         self.last_update = pygame.time.get_ticks()

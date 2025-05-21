@@ -65,30 +65,6 @@ class Knight(pygame.sprite.Sprite):
         all_sprites.add(self, layer=self._layer)
 
 
-
-
-    def adjust_attack_hitbox(self):
-        """Expande a hitbox apenas na direção do ataque"""
-        self.hit_rect.width = self.original_hit_rect_width
-        self.hit_rect.height = self.original_hit_rect_height
-        self.hit_rect.center = self.rect.center  # Garante que a hitbox esteja centrada inicialmente
-
-        if self.direction in ('right', 'up_right', 'down_right'):
-            self.hit_rect.width = int(self.original_hit_rect_width * 2)
-            self.hit_rect.left = self.rect.centerx  # Expande só para a direita
-
-        elif self.direction in ('left', 'up_left', 'down_left'):
-            self.hit_rect.width = int(self.original_hit_rect_width * 2)
-            self.hit_rect.right = self.rect.centerx  # Expande só para a esquerda
-
-        elif self.direction == 'up':
-            self.hit_rect.height = int(self.original_hit_rect_height * 2)
-            self.hit_rect.bottom = self.rect.centery  # Expande só para cima
-
-        elif self.direction == 'down':
-            self.hit_rect.height = int(self.original_hit_rect_height * 2)
-            self.hit_rect.top = self.rect.centery  # Expande só para baixo
-
     
     def get_keys(self):
         self.vel = vec(0, 0)
@@ -100,10 +76,14 @@ class Knight(pygame.sprite.Sprite):
                 self.state = 'attack'
                 self.last_attack = now
                 self.current_attack_frame = 0
+                self.attack()
             elif keys[pygame.K_f] and now - self.last_special > self.special_cooldown:
                 self.state = 'special'
                 self.last_special = now
                 self.current_special_frame = 0
+            elif keys[pygame.K_h]:
+                pass
+                #print(self.all_sprites)
 
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
             self.vel = vec(-self.playerspeed, -self.playerspeed)
@@ -154,12 +134,11 @@ class Knight(pygame.sprite.Sprite):
         else:
             if self.state not in ('attack', 'special', 'hurt'):
                 self.state = 'idle'
-    def damage_nearby_enemies(self):
-        hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
-        for skeleton in hits:
-            if skeleton not in self.damaged_enemies:
-                skeleton.health -= KNIGHT_ATTACK_DMG
-                self.damaged_enemies.add(skeleton)
+    def attack(self):
+        print("Entrei para criar hitbox")
+        hitbox = KnightAttackHitbox(self)
+        self.all_sprites.add(hitbox)
+        
 
     def update(self, dt):
         self.get_keys()
@@ -172,23 +151,18 @@ class Knight(pygame.sprite.Sprite):
         if self.state == 'attack':
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
-                
-                if self.current_attack_frame == 0:
-                    self.adjust_attack_hitbox()
-                    
-                if self.current_attack_frame < len(self.attack_frames):
-                    self.image = self.attack_frames[self.current_attack_frame]
-                    self.current_attack_frame += 1  # Aplica deslocamento visual
-                else:
-                    # Reset completo
-                    self.hit_rect.width = self.original_hit_rect_width
-                    self.hit_rect.height = self.original_hit_rect_height
-                    self.attack_offset = 0
-                    self.rect.center = self.hit_rect.center  # Restaura posição
+                self.current_attack_frame += 1
+                if self.current_attack_frame >= len(self.attack_frames):
                     self.state = 'idle'
-                    self.damaged_enemies = set()
                     self.current_attack_frame = 0
-            self.damage_nearby_enemies()
+                self.image = self.attack_frames[self.current_attack_frame]
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = old_center
+                self.hit_rect.centerx = self.pos.x
+                self.hit_rect.centery = self.pos.y
+                self.rect.center = self.hit_rect.center
+                    
 
         elif self.state == 'special':
             if now - self.last_update > self.frame_rate:
@@ -196,8 +170,6 @@ class Knight(pygame.sprite.Sprite):
                 if self.current_special_frame < len(self.special_frames):
                     self.image = self.special_frames[self.current_special_frame]
                     self.current_special_frame += 1
-                    if self.current_special_frame == 5:
-                        self.damage_nearby_enemies()
                 else:
                     self.state = 'idle'
                     self.current_special_frame = 0
@@ -345,5 +317,50 @@ class Arrow(pygame.sprite.Sprite):
              return (-0.707, 0.707)
          elif direction == 'down_right':
              return (-0.707, -0.707)
+
+
+class KnightAttackHitbox(pygame.sprite.Sprite):
+    def __init__(self, player):
+        pygame.sprite.Sprite.__init__(self)
+        self.player = player
+        self.hit_rect = KNIGHT_HITBOX_RECT.copy()
+        self.hit_rect.center = self.player.hit_rect.center
+        self.attack_duration = 600 
+        self.last_update = pygame.time.get_ticks()
+        self.image = pygame.Surface((self.hit_rect.width, self.hit_rect.height), pygame.SRCALPHA)
+        self.image.fill((0, 0, 0, 0))
+        self.rect = self.image.get_rect(center=self.hit_rect.center)
+        self.damaged_enemies = set()
+
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        #print(self.all_sprites)
+
+        if  self.player.direction in ('up_right', 'right', 'down_right'):
+            self.hit_rect.left = self.player.hit_rect.right
+        elif  self.player.direction in ('up_left', 'left', 'down_left'):
+            self.hit_rect.right = self.player.hit_rect.left
+        elif  self.player.direction == 'up':
+            self.hit_rect.bottom = self.player.hit_rect.top
+        elif  self.player.direction == 'down':
+            self.hit_rect.top = self.player.hit_rect.bottom
+
+
+
+        hits = pygame.sprite.spritecollide(self, self.player.all_skeletons, False, collide_hit_rect)
+        if hits:
+            for skeleton in hits:
+                if skeleton not in  self.damaged_enemies:
+                    skeleton.health -= KNIGHT_ATTACK_DMG
+                    self.damaged_enemies.add(skeleton)
+        
+        if now - self.last_update >= self.attack_duration:
+            self.kill()
+
+        self.rect.center = self.hit_rect.center
+
+
+
 
 
