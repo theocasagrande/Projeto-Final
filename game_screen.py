@@ -60,13 +60,14 @@ def game_screen(window):
 
     for tile_object in assets['map'].tmxdata.objects:
         if tile_object.name == 'player':
-            wizard1 = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+            knight1 = Knight(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+            # wizard1 = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
         if tile_object.name == 'wall':
             wall =Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
             all_sprites.add(wall)
             game_walls.add(wall)
         if tile_object.name == 'skeleton':
-            skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', wizard1, game_walls, assets)
+            skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', knight1, game_walls, assets)
             all_skeletons.add(skeleton1)
     
 
@@ -91,6 +92,8 @@ def game_screen(window):
         for sprite in all_sprites:
             if isinstance(sprite, Wizard):
                 sprite.update(dt)
+            elif isinstance(sprite, Knight):
+                sprite.update(dt)
             elif isinstance(sprite, Archer):
                 sprite.update(dt)
             elif isinstance(sprite, Skeleton):
@@ -99,20 +102,20 @@ def game_screen(window):
                 continue
             else:
                 sprite.update()
-        camera.update(wizard1)
+        camera.update(knight1)
         now = pygame.time.get_ticks()
         for skeleton in all_skeletons:
             if skeleton.health <= 0:
                 skeleton.kill()
 
-        selfhits = pygame.sprite.spritecollide(wizard1, all_skeletons, False, collide_hit_rect)
+        selfhits = pygame.sprite.spritecollide(knight1, all_skeletons, False, collide_hit_rect)
         for hit in selfhits:
-            if now - wizard1.last_hit_time > 1000:  # 1000 ms = 1 segundo
-                wizard1.health -= MOB_DAMAGE
+            if now - knight1.last_hit_time > 1000:  # 1000 ms = 1 segundo
+                knight1.health -= MOB_DAMAGE
                 hit.vel = vec(0, 0)
-                wizard1.state = 'hurt'
-                wizard1.last_hit_time = now  # Atualiza o tempo do último hit
-                if wizard1.health <= 0:
+                knight1.state = 'hurt'
+                knight1.last_hit_time = now  # Atualiza o tempo do último hit
+                if knight1.health <= 0:
                     return QUIT
         
         window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
@@ -136,7 +139,7 @@ def game_screen(window):
             current_health_pos = pygame.Rect(pos.x, pos.y - 10, health_width, 5)
             pygame.draw.rect(window, (0, 255, 0), current_health_pos)
 
-        draw_player_health(window, 10, 10, wizard1.health / PLAYER_HEALTH)
+        draw_player_health(window, 10, 10, knight1.health / PLAYER_HEALTH)
         pygame.display.update()
     return state
 

@@ -98,6 +98,11 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'wizard', f'wizard_speed_boost{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['wizard_speed_boost'].append(img)
+    assets['knight_hurt'] = []
+    for i in range(1,5):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knight_hurt0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['knight_hurt'].append(img)
     return assets
 
     
