@@ -159,6 +159,38 @@ def load_assets():
     img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton_archer', 'skeleton_archer_arrow.png')).convert_alpha()
     img = pygame.transform.scale(img, (TILESIZE // 2, TILESIZE // 2))
     assets['skeleton_archer_arrow'].append(img)
+
+    assets['necromancer_idle'] = []
+    for i in range(1,9):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_idle0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_idle'].append(img)
+    assets['necromancer_walk'] = []
+    for i in range(1,8):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_walk0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_walk'].append(img)
+    assets['necromancer_death'] = []
+    for i in range(1,10):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_death0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_death'].append(img)
+    assets['necromancer_attack1'] = []
+    for i in range(1,13):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_attack1'].append(img)
+    assets['necromancer_attack2'] = []
+    for i in range(1,14):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack2_0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_attack2'].append(img)
+    assets['necromancer_attack3'] = []
+    for i in range(1,18):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack3_0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_attack3'].append(img)
+
     return assets
 
 

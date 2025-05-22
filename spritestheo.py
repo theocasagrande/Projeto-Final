@@ -57,6 +57,7 @@ class Skeleton(pygame.sprite.Sprite):
         self.player = player
         self.state = state
         self.game_walls = game_walls
+        self.all_skeletons = player.all_skeletons
         self.animation_frames = self.assets['skeleton_idle']
         self.current_frame = 0
         self.last_update = pygame.time.get_ticks()
@@ -91,6 +92,17 @@ class Skeleton(pygame.sprite.Sprite):
         self.total_health = SKELETON_HEALTH
         self.last_attack = 0
 
+
+
+    def avoid_mobs(self):
+        for mob in self.all_skeletons:
+            if mob != self:
+                dist = self.pos - mob.pos
+                if 0 < dist.length() < AVOID_RADIUS:
+                    self.acc += dist.normalize()
+
+
+            
     def update(self, dt):
 
 
@@ -120,7 +132,9 @@ class Skeleton(pygame.sprite.Sprite):
                 if self.state != 'hurt':
                     self.state = 'move'
                 self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
-                self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
+                self.acc = vec(1, 0).rotate(-self.rot)
+                self.avoid_mobs()
+                self.acc.scale_to_length(MOB_SPEED)
                 self.acc += self.vel * -1
                 self.vel += self.acc * dt
                 self.pos += self.vel * dt + 0.5 * self.acc * dt ** 2
