@@ -4,7 +4,7 @@ from os import path
 from config import *
 from assets import load_assets
 import time
-from spritestheo import Skeleton, Wizard,  Camera, Wizard_attack_ice, collide_hit_rect, Obstacle
+from spritestheo import *
 from spriteszaltron import *
 from spritesbruno import *
 # ----- Cores
@@ -43,6 +43,7 @@ def game_screen(window, player):
     game_walls = pygame.sprite.Group()
     all_skeletons = pygame.sprite.Group()
     all_projectiles = pygame.sprite.Group()
+    enemy_projectiles = pygame.sprite.Group()
     # for row, tiles in enumerate(assets['map'].data):
     #     for col, tile in enumerate(tiles):
     #         if tile == '1':
@@ -66,12 +67,15 @@ def game_screen(window, player):
             elif player == 'wizard':
                 playerselected = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
         if tile_object.name == 'wall':
-            wall =Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
+            wall = Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
             all_sprites.add(wall)
             game_walls.add(wall)
         if tile_object.name == 'skeleton':
             skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets)
             all_skeletons.add(skeleton1)
+        if tile_object.name == 'skeleton_archer':
+            skeleton_archer1 = SkeletonArcher(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets, enemy_projectiles)
+            all_skeletons.add(skeleton_archer1)
     
 
     camera = Camera(assets['map_width'], assets['map_height'])
@@ -79,6 +83,8 @@ def game_screen(window, player):
     # all_sprites.add(knight)
     # all_sprites.add(archer1)
     all_sprites.add(all_skeletons)
+    all_sprites.add(all_projectiles)
+    all_sprites.add(enemy_projectiles)
 
     # ----- Cria o relógio para controlar o FPS
     while state != DONE:
@@ -101,26 +107,29 @@ def game_screen(window, player):
                 sprite.update(dt)
             elif isinstance(sprite, Skeleton):
                 sprite.update(dt)
+            elif isinstance(sprite, SkeletonArcher):
+                sprite.update(dt)
+            elif isinstance(sprite, SkeletonArcherArrow):
+                sprite.update(dt)
             elif isinstance(sprite, Obstacle):
                 continue
             else:
                 sprite.update()
         camera.update(playerselected)
         now = pygame.time.get_ticks()
-        for skeleton in all_skeletons:
-            if skeleton.health <= 0:
-                skeleton.kill()
+    
 
         selfhits = pygame.sprite.spritecollide(playerselected, all_skeletons, False, collide_hit_rect)
-        for hit in selfhits:
-            if now - playerselected.last_hit_time > 1000:  # 1000 ms = 1 segundo
-                playerselected.health -= MOB_DAMAGE
-                hit.vel = vec(0, 0)
-                playerselected.state = 'hurt'
-                playerselected.last_hit_time = now  # Atualiza o tempo do último hit
-                if playerselected.health <= 0:
-                    return QUIT
+        if selfhits:
+            for hit in selfhits:
+                if now - playerselected.last_hit_time > 1000:  # 1000 ms = 1 segundo
+                    playerselected.health -= MOB_DAMAGE
+                    hit.vel = vec(0, 0)
+                    playerselected.state = 'hurt'
+                    playerselected.last_hit_time = now  # Atualiza o tempo do último hit
         
+        if playerselected.health <= 0:
+            return QUIT
         window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
@@ -139,12 +148,13 @@ def game_screen(window, player):
             # Draw background (empty) health bar
             pygame.draw.rect(window, (255, 0, 0), health_pos)
             
-            health_width = (skeleton.health / SKELETON_HEALTH) * skeleton.rect.width
+            health_width = (skeleton.health / skeleton.total_health) * skeleton.rect.width
             current_health_pos = pygame.Rect(pos.x, pos.y - 10, health_width, 5)
             pygame.draw.rect(window, (0, 255, 0), current_health_pos)
 
         draw_player_health(window, 10, 10, playerselected.health / PLAYER_HEALTH)
         pygame.display.update()
     return state
+
 
 # ----- Inicia estruturas de dados

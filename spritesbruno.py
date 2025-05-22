@@ -12,6 +12,7 @@ class Knight(pygame.sprite.Sprite):
         self.game_walls = game_walls
         self.all_sprites = all_sprites
         self.all_skeletons = all_skeletons
+        self.all_projectiles = all_projectiles
 
         self.vel = vec(0, 0)
         self.pos = vec(x, y)
@@ -353,6 +354,7 @@ class KnightAttackHitbox(pygame.sprite.Sprite):
             for skeleton in hits:
                 if skeleton not in  self.damaged_enemies:
                     skeleton.health -= KNIGHT_ATTACK_DMG
+                    skeleton.state = 'hurt'
                     self.damaged_enemies.add(skeleton)
         
         if now - self.last_update >= self.attack_duration:

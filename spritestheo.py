@@ -4,6 +4,8 @@ from config import *
 from assets import load_assets
 from game_screen import *
 from spriteszaltron import *
+import random
+import math
 
 
 vec = pygame.math.Vector2
@@ -67,6 +69,12 @@ class Skeleton(pygame.sprite.Sprite):
         self.attack_frames = self.assets['skeleton_attack']
         self.current_attack_frame = 0
 
+        self.hurt_frames = self.assets['skeleton_hurt']
+        self.current_hurt_frame = 0
+
+        self.death_frames = self.assets['skeleton_death']
+        self.current_death_frame = 0
+
         self.collided = False
         self.rect = self.image.get_rect()
         self.hit_rect = MOB_HIT_RECT.copy()
@@ -80,19 +88,37 @@ class Skeleton(pygame.sprite.Sprite):
         self.rot = 0
         self.facing_right = True
         self.health = SKELETON_HEALTH
+        self.total_health = SKELETON_HEALTH
         self.last_attack = 0
 
     def update(self, dt):
-    
+
+
+        if self.state == 'death':
+            self.vel = vec(0, 0)
+            self.acc = vec(0, 0)
+            now = pygame.time.get_ticks()
+            if now - self.last_update > 200:
+                self.last_update = now
+                if self.current_death_frame < len(self.death_frames):
+                    self.image = self.death_frames[self.current_death_frame]
+                    old_center = self.rect.center
+                    self.rect = self.image.get_rect()
+                    self.rect.center = old_center
+                    self.current_death_frame += 1
+                else:
+                    self.kill()
+
         if collide_hit_rect(self, self.player):
             now = pygame.time.get_ticks()
             if now - self.last_attack > 1000:  # 1 segundo
                 self.state = 'attack'
                 self.collided = True
                 self.last_attack = now
-        if not self.collided:
+        if self.state != 'death':
             if distance_to(self.player, self) <= 5*TILESIZE:
-                self.state = 'move'
+                if self.state != 'hurt':
+                    self.state = 'move'
                 self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
                 self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
                 self.acc += self.vel * -1
@@ -123,9 +149,31 @@ class Skeleton(pygame.sprite.Sprite):
                     self.current_attack_frame = 0
                     self.collided = False
                     self.state = 'idle'
+
+        if self.state == 'hurt':
+            self.vel = vec(0, 0)
+            self.acc = vec(0, 0)
+            now = pygame.time.get_ticks()
+            delta_x = self.player.pos.x - self.pos.x
+            self.facing_right = delta_x >= 0
+            if now - self.last_update > self.frame_rate:
+                self.last_update = now
+                if self.current_hurt_frame >= len(self.hurt_frames):
+                    self.state = 'idle'
+                    self.current_hurt_frame = 0
+                self.image = self.hurt_frames[self.current_hurt_frame]
+                self.current_hurt_frame += 1
+                if not self.facing_right:
+                        self.image = pygame.transform.flip(self.image, True, False)
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = old_center
+                self.hit_rect.centerx = self.pos.x
+                self.hit_rect.centery = self.pos.y
+                self.rect.center = self.hit_rect.center
         
 
-        if self.state not in ('attack', 'hurt'):
+        if self.state not in ('attack', 'hurt', 'death'):
             if self.state == 'idle':
                 self.vel = vec(0, 0)
                 self.acc = vec(0, 0)
@@ -137,10 +185,10 @@ class Skeleton(pygame.sprite.Sprite):
                 now = pygame.time.get_ticks()
                 if now - self.last_update > self.frame_rate:
                     self.last_update = now
-                    self.current_frame += 1
                     if self.current_frame >= len(self.animation_frames):
                         self.current_frame = 0
                     self.image = self.animation_frames[self.current_frame]
+                    self.current_frame += 1
                     if not self.facing_right:
                         self.image = pygame.transform.flip(self.image, True, False)
                     old_center = self.rect.center
@@ -157,10 +205,10 @@ class Skeleton(pygame.sprite.Sprite):
                 now = pygame.time.get_ticks()
                 if now - self.last_update > self.frame_rate:
                     self.last_update = now
-                    self.current_walk_frame += 1
                     if self.current_walk_frame >= len(self.walk_frames):
                         self.current_walk_frame = 0
                     self.image = self.walk_frames[self.current_walk_frame]
+                    self.current_walk_frame += 1
                     if not self.facing_right:
                         self.image = pygame.transform.flip(self.image, True, False)
                     old_center = self.rect.center
@@ -178,7 +226,7 @@ class Skeleton(pygame.sprite.Sprite):
         self.hit_rect.centery = self.pos.y
         self.rect.center = self.hit_rect.center
         if self.health <= 0:
-            self.kill()
+            self.state = 'death'
         
 class Wizard(pygame.sprite.Sprite):
     def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons, all_projectiles):
@@ -597,6 +645,7 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
         for skeleton in hits:
             if skeleton not in self.damaged_enemies:
                 skeleton.health -= ICE_ATTACK_DMG
+                skeleton.state = 'hurt'
                 self.damaged_enemies.add(skeleton)
 
 class WizardSpecial(pygame.sprite.Sprite):
@@ -647,6 +696,7 @@ class WizardSpecial(pygame.sprite.Sprite):
         for skeleton in hits:
             if skeleton not in self.damaged_enemies:
                 skeleton.health -= WIZARD_SPECIAL_DMG
+                skeleton.state = 'hurt'
                 self.damaged_enemies.add(skeleton)
 
 
@@ -685,3 +735,198 @@ class SpeedBoost(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
                 self.hit_rect.center = self.rect.center
+
+class SkeletonArcher(pygame.sprite.Sprite):
+    def __init__(self, x, y, state, player, game_walls, assets, enemy_projectiles):
+        pygame.sprite.Sprite.__init__(self)
+        self.assets = assets
+        self.player = player
+        self.state = state
+        self.game_walls = game_walls
+        self.all_sprites = player.all_sprites
+        self.enemy_projectiles = enemy_projectiles
+        self.all_projectiles = player.all_projectiles
+        self.animation_frames = self.assets['skeleton_archer_idle']
+        self.current_frame = 0
+        self.last_update = pygame.time.get_ticks()
+        self.frame_rate = 100
+        self.image = self.animation_frames[self.current_frame]
+
+        self.walk_frames = self.assets['skeleton_archer_walk']
+        self.current_walk_frame = 0
+
+        self.attack_frames = self.assets['skeleton_archer_attack']
+        self.current_attack_frame = 0
+
+        self.collided = False
+        self.rect = self.image.get_rect()
+        self.hit_rect = MOB_HIT_RECT.copy()
+        self.hit_rect.center = self.rect.center
+        self.pos = vec(x, y)
+        self.rect.center = self.pos
+        self.rect.centerx = self.pos.x
+        self.rect.centery = self.pos.y
+        self.vel = vec(0, 0)
+        self.acc = vec(0, 0)
+        self.rot = 0
+        self.facing_right = True
+        self.health = SKELETON_ARCHER_HEALTH
+        self.total_health = SKELETON_ARCHER_HEALTH
+        self.last_attack = 0
+
+
+    def shoot_arrow(self):
+        arrow = SkeletonArcherArrow(
+            self,
+            self.player,
+            self.assets, self.enemy_projectiles
+        )
+        self.all_sprites.add(arrow, layer=self.player._layer)
+        self.all_projectiles.add(arrow)
+    def update(self, dt):
+    
+
+        if distance_to(self.player, self) <= 10*TILESIZE:
+            self.state = 'attack'
+            now = pygame.time.get_ticks()
+            if now - self.last_attack > 3000:  # 1 segundo
+                self.shoot_arrow()
+                self.last_attack = now
+            else:
+                self.state = 'idle'
+
+
+        if self.state == 'attack':
+            self.vel = vec(0, 0)
+            self.acc = vec(0, 0)
+            delta_x = self.player.pos.x - self.pos.x
+            self.facing_right = delta_x >= 0
+
+            now = pygame.time.get_ticks()
+            if now - self.last_update > self.frame_rate:
+                self.last_update = now
+                if self.current_attack_frame < len(self.attack_frames):
+                    self.image = self.attack_frames[self.current_attack_frame]
+                    if not self.facing_right:
+                        self.image = pygame.transform.flip(self.image, True, False)
+                    old_center = self.rect.center
+                    self.rect = self.image.get_rect()
+                    self.rect.center = old_center
+                    self.current_attack_frame += 1
+                else:
+                    self.current_attack_frame = 0
+                    self.collided = False
+                    self.state = 'idle'
+        
+
+        if self.state not in ('attack', 'hurt'):
+            if self.state == 'idle':
+                self.vel = vec(0, 0)
+                self.acc = vec(0, 0)
+                delta_x = self.player.pos.x - self.pos.x
+                if delta_x < 0:
+                    self.facing_right = False
+                else: 
+                    self.facing_right = True
+                now = pygame.time.get_ticks()
+                if now - self.last_update > self.frame_rate:
+                    self.last_update = now
+                    self.current_frame += 1
+                    if self.current_frame >= len(self.animation_frames):
+                        self.current_frame = 0
+                    self.image = self.animation_frames[self.current_frame]
+                    if not self.facing_right:
+                        self.image = pygame.transform.flip(self.image, True, False)
+                    old_center = self.rect.center
+                    self.rect = self.image.get_rect()
+                    self.rect.center = old_center
+            elif self.state == 'move':
+                self.vel = vec(0, 0)
+                self.acc = vec(0, 0)
+                delta_x = self.player.pos.x - self.pos.x
+                if delta_x < 0:
+                    self.facing_right = False
+                else: 
+                    self.facing_right = True
+                now = pygame.time.get_ticks()
+                if now - self.last_update > self.frame_rate:
+                    self.last_update = now
+                    self.current_walk_frame += 1
+                    if self.current_walk_frame >= len(self.walk_frames):
+                        self.current_walk_frame = 0
+                    self.image = self.walk_frames[self.current_walk_frame]
+                    if not self.facing_right:
+                        self.image = pygame.transform.flip(self.image, True, False)
+                    old_center = self.rect.center
+                    self.rect = self.image.get_rect()
+                    self.rect.center = old_center
+        
+        self.rect.center = self.pos
+        self.hit_rect.centerx = self.pos.x
+        collision(self, self.game_walls, 'x')
+        self.hit_rect.centery = self.pos.y
+        collision(self, self.game_walls, 'y')
+        self.rect.center = self.hit_rect.center
+
+        self.hit_rect.centerx = self.pos.x
+        self.hit_rect.centery = self.pos.y
+        self.rect.center = self.hit_rect.center
+        if self.health <= 0:
+            self.kill()
+
+
+class SkeletonArcherArrow(pygame.sprite.Sprite):
+    def __init__(self, skeletonarcher, player, assets, enemy_projectiles):
+        pygame.sprite.Sprite.__init__(self)
+        self.assets = assets
+        self.original_image = self.assets['skeleton_archer_arrow'][0]
+        self.skeleton_archer = skeletonarcher
+        self.player = player
+        self.enemy_projectiles = enemy_projectiles
+
+        archer_pos = self.skeleton_archer.rect.center
+        player_pos = self.player.rect.center
+        dx = player_pos[0] - archer_pos[0]
+        dy = player_pos[1] - archer_pos[1]
+        
+
+        angle = math.degrees(math.atan2(-dy, dx)) 
+        
+       
+        self.image = pygame.transform.rotate(self.original_image, angle)
+        self.rect = self.image.get_rect(center=archer_pos)
+        
+       
+        direction = pygame.math.Vector2(dx, dy).normalize() if (dx, dy) != (0, 0) else pygame.math.Vector2(1, 0)
+        self.velocity = direction * ARROW_SPEED
+        
+        # Set up hitbox
+        self.hit_rect = SKELETON_ARCHER_ARROW_RECT.copy()
+        self.hit_rect.center = self.rect.center
+
+        self.enemy_projectiles.add(self)
+
+    def update(self, dt):
+    
+        self.rect.centerx += self.velocity.x * dt
+        self.rect.centery += self.velocity.y * dt
+        self.hit_rect.center = self.rect.center
+
+
+
+        if collide_hit_rect(self, self.player):
+            self.player.health -= SKELETON_ARCHER_ARROW_DAMAGE
+            self.player.state = 'hurt'
+            self.kill()
+
+        for wall in self.player.game_walls:
+            if pygame.sprite.collide_rect(self, wall):
+                self.kill()
+
+
+
+
+
+
+
+
