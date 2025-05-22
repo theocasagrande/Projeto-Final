@@ -280,7 +280,8 @@ class Wizard(pygame.sprite.Sprite):
         self.original_walk_frames = self.assets['wizard_walk']
         self.walk_frames = list(self.original_walk_frames)
         self.current_framewalk = 0
-        self.health = PLAYER_HEALTH
+        self.health = WIZARD_HEALTH
+        self.total_health = WIZARD_HEALTH
         self.last_hit_time = 0
         self.last_speed = 0
         self.playerspeed = PLAYER_SPEED

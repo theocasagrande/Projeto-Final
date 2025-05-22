@@ -152,7 +152,7 @@ def game_screen(window, player):
             current_health_pos = pygame.Rect(pos.x, pos.y - 10, health_width, 5)
             pygame.draw.rect(window, (0, 255, 0), current_health_pos)
 
-        draw_player_health(window, 10, 10, playerselected.health / PLAYER_HEALTH)
+        draw_player_health(window, 10, 10, playerselected.health / playerselected.total_health)
         pygame.display.update()
     return state
 

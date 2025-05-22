@@ -90,8 +90,25 @@ def load_assets():
         assets['knight_attack'].append(img)
     assets['knight_special'] = []
     for i in range(1, 12):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        if i < 2:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        elif i < 5:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE // 1.25, TILESIZE))
+        elif i < 6 :
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        elif i < 8:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE*1.7, TILESIZE*1.25))
+
+        elif i < 11:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE*2.2, TILESIZE*1.5))
+        else:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['knight_special'].append(img)
     assets['wizard_speed_boost'] = []    
     for i in range(1,11):
