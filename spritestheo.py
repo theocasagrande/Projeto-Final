@@ -6,6 +6,8 @@ from game_screen import *
 from spriteszaltron import *
 import random
 import math
+import random
+import math
 
 
 vec = pygame.math.Vector2
@@ -99,44 +101,14 @@ class Skeleton(pygame.sprite.Sprite):
         self.total_health = SKELETON_HEALTH
         self.last_attack = 0
 
-
-    # Função que evita que mobs se agrupem quando vão em direção ao player
-    def avoid_mobs(self):
-        for mob in self.all_skeletons:
-            if mob != self:
-                dist = self.pos - mob.pos
-                if 0 < dist.length() < AVOID_RADIUS:
-                    self.acc += dist.normalize()
-
-
-            
     def update(self, dt):
-
-        # Animações de morte do esqueleto
-        if self.state == 'death':
-            self.vel = vec(0, 0)
-            self.acc = vec(0, 0)
-            now = pygame.time.get_ticks()
-            if now - self.last_update > 200:
-                self.last_update = now
-                if self.current_death_frame < len(self.death_frames):
-                    self.image = self.death_frames[self.current_death_frame]
-                    old_center = self.rect.center
-                    self.rect = self.image.get_rect()
-                    self.rect.center = old_center
-                    self.current_death_frame += 1
-                else:
-                    self.kill()
-        # Ativa a animação de ataque se o esqueleto collidir com o hit_Rect do player
+    
         if collide_hit_rect(self, self.player):
             now = pygame.time.get_ticks()
             if now - self.last_attack > 1000:  # 1 segundo
                 self.state = 'attack'
                 self.last_attack = now
-
-        # Se o player estiver entre 5 tiles de distancia do esqueleto, 
-        # o esqueleto começa a ir em direção ao player, evitando collidir com outros esqueletos
-        if self.state != 'death':
+        if not self.collided:
             if distance_to(self.player, self) <= 5*TILESIZE:
                 if self.state != 'hurt':
                     self.state = 'move'
@@ -172,33 +144,9 @@ class Skeleton(pygame.sprite.Sprite):
                     self.current_attack_frame = 0
                     self.collided = False
                     self.state = 'idle'
-
-        # Animação de tomar dano do esqueleto
-        if self.state == 'hurt':
-            self.vel = vec(0, 0)
-            self.acc = vec(0, 0)
-            now = pygame.time.get_ticks()
-            delta_x = self.player.pos.x - self.pos.x
-            self.facing_right = delta_x >= 0
-            if now - self.last_update > self.frame_rate:
-                self.last_update = now
-                if self.current_hurt_frame >= len(self.hurt_frames):
-                    self.state = 'idle'
-                    self.current_hurt_frame = 0
-                self.image = self.hurt_frames[self.current_hurt_frame]
-                self.current_hurt_frame += 1
-                if not self.facing_right:
-                        self.image = pygame.transform.flip(self.image, True, False)
-                old_center = self.rect.center
-                self.rect = self.image.get_rect()
-                self.rect.center = old_center
-                self.hit_rect.centerx = self.pos.x
-                self.hit_rect.centery = self.pos.y
-                self.rect.center = self.hit_rect.center
         
-        # Animação do esqueleto parado e em movimento. Essas animações só acontecem se o esqueleto não
-        # estiver tomando dano, atacando ou morrendo
-        if self.state not in ('attack', 'hurt', 'death'):
+
+        if self.state not in ('attack', 'hurt'):
             if self.state == 'idle':
                 self.vel = vec(0, 0)
                 self.acc = vec(0, 0)
@@ -772,184 +720,3 @@ class SpeedBoost(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = old_center
                 self.hit_rect.center = self.rect.center
-
-#Esqueleto Arqueiro
-class SkeletonArcher(pygame.sprite.Sprite):
-    #Função Construtora
-    def __init__(self, x, y, state, player, game_walls, assets, enemy_projectiles):
-        pygame.sprite.Sprite.__init__(self)
-        self.assets = assets
-        self.player = player
-        self.state = state
-        self.game_walls = game_walls
-        self.all_sprites = player.all_sprites
-        self.enemy_projectiles = enemy_projectiles
-        self.all_projectiles = player.all_projectiles
-        self.animation_frames = self.assets['skeleton_archer_idle']
-        self.current_frame = 0
-        self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 100
-        self.image = self.animation_frames[self.current_frame]
-
-
-        self.attack_frames = self.assets['skeleton_archer_attack']
-        self.current_attack_frame = 0
-
-        self.collided = False
-        self.rect = self.image.get_rect()
-        self.hit_rect = MOB_HIT_RECT.copy()
-        self.hit_rect.center = self.rect.center
-        self.pos = vec(x, y)
-        self.rect.center = self.pos
-        self.rect.centerx = self.pos.x
-        self.rect.centery = self.pos.y
-        self.vel = vec(0, 0)
-        self.acc = vec(0, 0)
-        self.rot = 0
-        self.facing_right = True
-        self.health = SKELETON_ARCHER_HEALTH
-        self.total_health = SKELETON_ARCHER_HEALTH
-        self.last_attack = 0
-
-    #Cria uma flecha
-    def shoot_arrow(self):
-        arrow = SkeletonArcherArrow(self,self.player,self.assets, self.enemy_projectiles)
-        self.all_sprites.add(arrow, layer=self.player._layer)
-        self.all_projectiles.add(arrow)
-    def update(self, dt):
-    
-        # Se a distancia entre o esqueleto arqueiro e o player for menor que 10 tiles, 
-        # o esqueleto arqueiro atira uma flecha e ativa a animação de ataque dele.
-        # A flecha é atirada uma vez a cada 3 segundos
-        if distance_to(self.player, self) <= 10*TILESIZE:
-            self.state = 'attack'
-            now = pygame.time.get_ticks()
-            if now - self.last_attack > 3000:  # 3 segundos
-                self.shoot_arrow()
-                self.last_attack = now
-
-        # Animação de ataque
-        if self.state == 'attack':
-            self.vel = vec(0, 0)
-            self.acc = vec(0, 0)
-            delta_x = self.player.pos.x - self.pos.x
-            self.facing_right = delta_x >= 0
-
-            now = pygame.time.get_ticks()
-            if now - self.last_update > self.frame_rate:
-                self.last_update = now
-                if self.current_attack_frame < len(self.attack_frames):
-                    self.image = self.attack_frames[self.current_attack_frame]
-                    if not self.facing_right:
-                        self.image = pygame.transform.flip(self.image, True, False)
-                    old_center = self.rect.center
-                    self.rect = self.image.get_rect()
-                    self.rect.center = old_center
-                    self.current_attack_frame += 1
-                else:
-                    self.current_attack_frame = 0
-                    self.collided = False
-                    self.state = 'idle'
-        
-        #Animação de tomar dano e do esqueleto parado
-        if self.state not in ('attack', 'hurt'):
-            if self.state == 'idle':
-                self.vel = vec(0, 0)
-                self.acc = vec(0, 0)
-                delta_x = self.player.pos.x - self.pos.x
-                if delta_x < 0:
-                    self.facing_right = False
-                else: 
-                    self.facing_right = True
-                now = pygame.time.get_ticks()
-                if now - self.last_update > self.frame_rate:
-                    self.last_update = now
-                    self.current_frame += 1
-                    if self.current_frame >= len(self.animation_frames):
-                        self.current_frame = 0
-                    self.image = self.animation_frames[self.current_frame]
-                    if not self.facing_right:
-                        self.image = pygame.transform.flip(self.image, True, False)
-                    old_center = self.rect.center
-                    self.rect = self.image.get_rect()
-                    self.rect.center = old_center
-        
-
-        #Atualiza posição dos rects
-        self.rect.center = self.pos
-        self.hit_rect.centerx = self.pos.x
-
-        #Verifica colisões entre paredes
-        collision(self, self.game_walls, 'x')
-        self.hit_rect.centery = self.pos.y
-        collision(self, self.game_walls, 'y')
-        self.rect.center = self.hit_rect.center
-
-        self.hit_rect.centerx = self.pos.x
-        self.hit_rect.centery = self.pos.y
-        self.rect.center = self.hit_rect.center
-
-        # Remove o esqueleto arqueiro de todos os grupos se ele morrer (vida acabar)
-        if self.health <= 0:
-            self.kill()
-
-#Flecha do Esqueleto Arqueiro
-class SkeletonArcherArrow(pygame.sprite.Sprite):
-    #Função Construtora
-    def __init__(self, skeletonarcher, player, assets, enemy_projectiles):
-        pygame.sprite.Sprite.__init__(self)
-        self.assets = assets
-        self.original_image = self.assets['skeleton_archer_arrow'][0]
-        self.skeleton_archer = skeletonarcher
-        self.player = player
-        self.enemy_projectiles = enemy_projectiles
-
-
-        #Perguntar para ChatGPT como funciona
-        archer_pos = self.skeleton_archer.rect.center
-        player_pos = self.player.rect.center
-        dx = player_pos[0] - archer_pos[0]
-        dy = player_pos[1] - archer_pos[1]
-        
-
-        angle = math.degrees(math.atan2(-dy, dx)) 
-        
-       
-        self.image = pygame.transform.rotate(self.original_image, angle)
-        self.rect = self.image.get_rect(center=archer_pos)
-        
-       
-        direction = pygame.math.Vector2(dx, dy).normalize() if (dx, dy) != (0, 0) else pygame.math.Vector2(1, 0)
-        self.velocity = direction * ARROW_SPEED
-        
-        # Set up hitbox
-        self.hit_rect = SKELETON_ARCHER_ARROW_RECT.copy()
-        self.hit_rect.center = self.rect.center
-
-        self.enemy_projectiles.add(self)
-
-    def update(self, dt):
-        
-        #Atualiza posições dos rects
-        self.rect.centerx += self.velocity.x * dt
-        self.rect.centery += self.velocity.y * dt
-        self.hit_rect.center = self.rect.center
-
-
-        # Se collidir com o player, o player toma dano e a flecha desaparece.
-        if collide_hit_rect(self, self.player):
-            self.player.health -= SKELETON_ARCHER_ARROW_DAMAGE
-            self.player.state = 'hurt'
-            self.kill()
-        #Se a flecha collidir com uma parede, ela desaparece.
-        for wall in self.player.game_walls:
-            if pygame.sprite.collide_rect(self, wall):
-                self.kill()
-
-
-
-
-
-
-
-

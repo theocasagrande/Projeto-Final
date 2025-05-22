@@ -90,8 +90,25 @@ def load_assets():
         assets['knight_attack'].append(img)
     assets['knight_special'] = []
     for i in range(1, 12):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        if i < 2:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        elif i < 5:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE // 1.25, TILESIZE))
+        elif i < 6 :
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        elif i < 8:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE*1.7, TILESIZE*1.25))
+
+        elif i < 11:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE*2.2, TILESIZE*1.5))
+        else:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knightat2{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['knight_special'].append(img)
     assets['wizard_speed_boost'] = []    
     for i in range(1,11):
@@ -103,6 +120,78 @@ def load_assets():
         img = pygame.image.load(os.path.join(ANIM_DIR, 'knight', f'knight_hurt0{i}.png')).convert_alpha()
         img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['knight_hurt'].append(img)
+    assets['skeleton_death'] = []
+    for i in range(1,5):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton', f'skeleton_death0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_death'].append(img)
+    assets['skeleton_archer_idle'] = []
+    for i in range(1,7):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton_archer', f'skeleton_archer_idle0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_archer_idle'].append(img)
+    assets['skeleton_archer_walk'] = []
+    for i in range(1,9):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton_archer', f'skeleton_archer_walk0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_archer_walk'].append(img)
+    assets['skeleton_archer_attack'] = []
+    for i in range(1,9):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton_archer', f'skeleton_archer_attack0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_archer_attack'].append(img)
+    assets['skeleton_archer_idle'] = []
+    for i in range(1,7):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton_archer', f'skeleton_archer_idle0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_archer_idle'].append(img)
+    assets['skeleton_archer_death'] = []
+    for i in range(1,5):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton_archer', f'skeleton_archer_death0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_archer_death'].append(img)
+    assets['skeleton_hurt'] = []
+    for i in range(1,5):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton', f'skeleton_hurt0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['skeleton_hurt'].append(img)
+    assets['skeleton_archer_arrow'] = []
+    img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton_archer', 'skeleton_archer_arrow.png')).convert_alpha()
+    img = pygame.transform.scale(img, (TILESIZE // 2, TILESIZE // 2))
+    assets['skeleton_archer_arrow'].append(img)
+
+    assets['necromancer_idle'] = []
+    for i in range(1,9):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_idle0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_idle'].append(img)
+    assets['necromancer_walk'] = []
+    for i in range(1,8):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_walk0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_walk'].append(img)
+    assets['necromancer_death'] = []
+    for i in range(1,10):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_death0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_death'].append(img)
+    assets['necromancer_attack1'] = []
+    for i in range(1,13):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_attack1'].append(img)
+    assets['necromancer_attack2'] = []
+    for i in range(1,14):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack2_0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_attack2'].append(img)
+    assets['necromancer_attack3'] = []
+    for i in range(1,18):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack3_0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        assets['necromancer_attack3'].append(img)
+
     return assets
+
 
     
