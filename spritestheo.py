@@ -947,6 +947,21 @@ class SkeletonArcherArrow(pygame.sprite.Sprite):
                 self.kill()
 
 
+class BossRoomTeleport(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(x,y,width,height)  
+        self.hit_rect = self.rect
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)  # Suporta transparência
+        self.image.fill((0, 0, 0, 0))
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y
+        
+
+
+
 
 
 

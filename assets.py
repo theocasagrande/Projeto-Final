@@ -163,33 +163,44 @@ def load_assets():
     assets['necromancer_idle'] = []
     for i in range(1,9):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_idle0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
         assets['necromancer_idle'].append(img)
     assets['necromancer_walk'] = []
     for i in range(1,8):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_walk0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
         assets['necromancer_walk'].append(img)
     assets['necromancer_death'] = []
     for i in range(1,10):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_death0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
         assets['necromancer_death'].append(img)
     assets['necromancer_attack1'] = []
     for i in range(1,13):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
         assets['necromancer_attack1'].append(img)
     assets['necromancer_attack2'] = []
     for i in range(1,14):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack2_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
         assets['necromancer_attack2'].append(img)
     assets['necromancer_attack3'] = []
     for i in range(1,18):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack3_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
+        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
         assets['necromancer_attack3'].append(img)
+    assets['necromancer_hurt'] = []
+    for i in range(1,5):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_hurt0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
+        assets['necromancer_hurt'].append(img)
+    assets['bossroom'] = TiledMap(path.join(MAP_DIR, 'bossroom.tmx'), SCALE)  # 16 * 4 = 64
+    assets['bossroom_surface'] = assets['bossroom'].make_map()
+    assets['bossroom_rect'] = assets['bossroom_surface'].get_rect()
+    assets['bossroom_width'] = assets['bossroom'].width
+    assets['bossroom_height'] = assets['bossroom'].height
+    
 
     return assets
 

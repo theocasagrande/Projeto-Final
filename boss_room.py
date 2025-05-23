@@ -7,6 +7,7 @@ import time
 from spritestheo import *
 from spriteszaltron import *
 from spritesbruno import *
+from boss import *
 # ----- Cores
 vec = pygame.math.Vector2
 
@@ -26,11 +27,12 @@ def draw_player_health(surface, x, y, pct):
         col = (255, 0, 0)
     pygame.draw.rect(surface, col, fill_rect)
     pygame.draw.rect(surface, (255,255,255), outline_rect, 2)
-def game_screen(window, player):
+def boss_room(window, player):
     # ----- Inicia o jogo
     pygame.init()
     clock = pygame.time.Clock()
 
+    print(player)
     # ----- Carrega os assets
     assets = load_assets()
     playerselected = player
@@ -44,34 +46,44 @@ def game_screen(window, player):
     all_skeletons = pygame.sprite.Group()
     all_projectiles = pygame.sprite.Group()
     enemy_projectiles = pygame.sprite.Group()
-    bossteleport = pygame.sprite.Group()
 
-    for tile_object in assets['map'].tmxdata.objects:
+    
+      # instância real do jogador
+
+    playerselected = None  # será instanciado em seguida
+
+# Primeiro passo: cria jogador e paredes
+    for tile_object in assets['bossroom'].tmxdata.objects:
         if tile_object.name == 'player':
-            if playerselected == 'knight':
-                playerselected = Knight(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+            if player == 'knight':
+                playerselected = Knight(tile_object.x * SCALE, tile_object.y * SCALE, 'idle',
+                                        all_sprites, game_walls, all_skeletons, all_projectiles)
             elif player == 'wizard':
-                playerselected = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
-        if tile_object.name == 'wall':
-            wall = Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
+                playerselected = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle',
+                                        all_sprites, game_walls, all_skeletons, all_projectiles)
+        elif tile_object.name == 'wall':
+            wall = Obstacle(tile_object.x * SCALE, tile_object.y * SCALE,
+                            tile_object.width * SCALE, tile_object.height * SCALE)
             all_sprites.add(wall)
             game_walls.add(wall)
-        if tile_object.name == 'skeleton':
-            skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets)
-            all_skeletons.add(skeleton1)
-        if tile_object.name == 'skeleton_archer':
-            skeleton_archer1 = SkeletonArcher(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets, enemy_projectiles)
-            all_skeletons.add(skeleton_archer1)
-        if tile_object.name == 'bossroom':
-            bosstp = BossRoomTeleport(tile_object.x * SCALE, tile_object.y * SCALE, tile_object.width * SCALE, tile_object.height * SCALE)
-            bossteleport.add(bosstp)
+
+    # Segundo passo: cria o boss, agora com playerselected já instanciado
+    for tile_object in assets['bossroom'].tmxdata.objects:
+        if tile_object.name == 'boss_spawn' and playerselected is not None:
+            boss = Necromancer(tile_object.x * SCALE, tile_object.y * SCALE, 'idle',
+                            playerselected, game_walls, all_skeletons, assets)
+            all_sprites.add(boss)
+            all_skeletons.add(boss)
+
+
+            
     
 
-    camera = Camera(assets['map_width'], assets['map_height'])
+    camera = Camera(assets['bossroom_width'], assets['bossroom_height'])
     all_sprites.add(all_skeletons)
     all_sprites.add(all_projectiles)
     all_sprites.add(enemy_projectiles)
-    all_sprites.add(bosstp)
+    
 
     # ----- Cria o relógio para controlar o FPS
     while state != DONE:
@@ -84,8 +96,6 @@ def game_screen(window, player):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     state = DONE
-                if event.key == pygame.K_l:
-                    return BOSS, player
 
         for sprite in all_sprites:
             if isinstance(sprite, Wizard):
@@ -104,6 +114,8 @@ def game_screen(window, player):
                 continue
             elif isinstance(sprite, BossRoomTeleport):
                 continue
+            elif isinstance(sprite, Necromancer):
+                sprite.update(dt)
             else:
                 sprite.update()
         camera.update(playerselected)
@@ -121,7 +133,7 @@ def game_screen(window, player):
         
         if playerselected.health <= 0:
             return QUIT
-        window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
+        window.blit(assets['bossroom_surface'], camera.apply_rect(assets['bossroom_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
             if not isinstance(sprite, Obstacle):
@@ -130,10 +142,6 @@ def game_screen(window, player):
                 else:
                     pygame.draw.rect(window, (0, 255, 0), camera.apply_rect(sprite.rect), 1)
 
-
-        teleport = pygame.sprite.spritecollide(playerselected, bossteleport, False, collide_hit_rect)
-        if teleport:
-            return BOSS, player
         for skeleton in all_skeletons:
             # Calculate health bar position relative to camera
             pos = camera.apply(skeleton)
