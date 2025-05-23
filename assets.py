@@ -204,6 +204,10 @@ def load_assets():
     assets['bossroom_rect'] = assets['bossroom_surface'].get_rect()
     assets['bossroom_width'] = assets['bossroom'].width
     assets['bossroom_height'] = assets['bossroom'].height
+    assets['attack_lockon'] = []
+    img = pygame.image.load(os.path.join(IMG_DIR,'attack_lockon1.png')).convert_alpha()
+    img = pygame.transform.scale(img, (TILESIZE*2.5, TILESIZE*2.5))
+    assets['attack_lockon'].append(img)
     
 
     return assets
