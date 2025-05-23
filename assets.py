@@ -177,8 +177,12 @@ def load_assets():
         assets['necromancer_death'].append(img)
     assets['necromancer_attack1'] = []
     for i in range(1,13):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
+        if i >= 9:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE*6, TILESIZE*6))
+        else:
+            img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
+            img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
         assets['necromancer_attack1'].append(img)
     assets['necromancer_attack2'] = []
     for i in range(1,14):

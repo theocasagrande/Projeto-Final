@@ -7,7 +7,6 @@ import time
 from spritestheo import *
 from spriteszaltron import *
 from spritesbruno import *
-from boss import *
 # ----- Cores
 vec = pygame.math.Vector2
 
@@ -71,7 +70,7 @@ def boss_room(window, player):
     for tile_object in assets['bossroom'].tmxdata.objects:
         if tile_object.name == 'boss_spawn' and playerselected is not None:
             boss = Necromancer(tile_object.x * SCALE, tile_object.y * SCALE, 'idle',
-                            playerselected, game_walls, all_skeletons, assets)
+                            playerselected, game_walls, all_skeletons, assets, enemy_projectiles)
             all_sprites.add(boss)
             all_skeletons.add(boss)
 
