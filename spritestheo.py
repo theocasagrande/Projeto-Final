@@ -297,7 +297,7 @@ class Wizard(pygame.sprite.Sprite):
         self.rect.center = self.pos 
         self.iceticks = 1000
         self.specialticks = 5000
-        self.speedticks = 2000
+        self.speedticks = 10000
         self.last_ice_attack = pygame.time.get_ticks()
         self.last_special = pygame.time.get_ticks()
         self.direction = 'right'
@@ -1014,6 +1014,7 @@ class Necromancer(pygame.sprite.Sprite):
         self.attack3_activated = False
 
         self.attack_lockedon = False
+        self.lockon_attempted = False
 
     def avoid_mobs(self):
         for mob in self.all_skeletons:
@@ -1038,22 +1039,27 @@ class Necromancer(pygame.sprite.Sprite):
         skeleton_archer1 = SkeletonArcher(spawn_x, spawn_y, 'idle', self.player, self.game_walls, self.assets, self.enemy_projectiles)
         self.all_skeletons.add(skeleton_archer1)
         self.all_sprites.add(skeleton_archer1)
+    def attempt_lockon(self):
+        self.lockon = AttackLockOn(self.player, self)
+        self.lockon_saved_pos = self.player.hit_rect.center
+        self.all_sprites.add(self.lockon)
 
 
     def update(self, dt):
     
         
-        if distance_to(self.player, self) <= 15*TILESIZE:
+        # In Necromancer.update()
+        if distance_to(self.player, self) <= 10*TILESIZE:
             self.attack_loop()
             if self.state not in ('attack1', 'attack2', 'attack3', 'hurt'):
                 self.state = 'move'
-            self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
-            self.acc = vec(1, 0).rotate(-self.rot)
-            self.avoid_mobs()
-            self.acc.scale_to_length(BOSS_SPEED)
-            self.acc += self.vel * -1
-            self.vel += self.acc * dt
-            self.pos += self.vel * dt + 0.5 * self.acc * dt ** 2
+                self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
+                self.acc = vec(1, 0).rotate(-self.rot)
+                self.avoid_mobs()
+                self.acc.scale_to_length(BOSS_SPEED)
+                self.acc += self.vel * -1
+                self.vel += self.acc * dt
+                self.pos += self.vel * dt + 0.5 * self.acc * dt ** 2
 
         # Animação de ataque
         if self.state == 'attack1':
@@ -1078,6 +1084,9 @@ class Necromancer(pygame.sprite.Sprite):
                     self.state = 'idle'
                     self.attack1necro()
         if self.state == 'attack2':
+            if self.current_attack2_frame == 0 and not self.lockon_attempted:  
+                self.attempt_lockon()
+                self.lockon_attempted = True
             self.vel = vec(0, 0)
             self.acc = vec(0, 0)
             delta_x = self.player.pos.x - self.pos.x
@@ -1097,6 +1106,7 @@ class Necromancer(pygame.sprite.Sprite):
                 else:
                     self.current_attack2_frame = 0
                     self.state = 'idle'
+                    self.lockon_attempted = False
         if self.state == 'attack3':
             self.vel = vec(0, 0)
             self.acc = vec(0, 0)
@@ -1194,12 +1204,12 @@ class Necromancer(pygame.sprite.Sprite):
             self.attack1_activated = True
 
       
-        if elapsed > 10000 and not self.attack2_activated:
+        if elapsed > 15000 and not self.attack2_activated:
             self.state = 'attack2'
             self.attack2_activated = True
 
        
-        if elapsed > 15000 and not self.attack3_activated:
+        if elapsed > 25000 and not self.attack3_activated:
             self.state = 'attack3'
             self.attack3_activated = True
 
@@ -1211,30 +1221,87 @@ class Necromancer(pygame.sprite.Sprite):
             self.last_attack_chain = now
 class AttackLockOn(pygame.sprite.Sprite):
     def __init__(self, player, necromancer):
-        pygame.sprite.Sprite.__init__()
+        pygame.sprite.Sprite.__init__(self)
         self.assets = player.assets
         self.all_sprites = player.all_sprites
         self.necromancer = necromancer
+        self.player = player
         self.image = self.assets['attack_lockon'][0]
+        print("AttackLockOn image size:", self.image.get_size())
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
-        self.last_update = 0
+        self.last_update = pygame.time.get_ticks()
         self.all_sprites.add(self)
 
 
     def update(self):
         now = pygame.time.get_ticks()
         elapsed = now - self.last_update
-
+        print("AttackLockOn position:", self.rect.center, "Player position:", self.player.hit_rect.center)
         if elapsed < 2000:
             self.hit_rect.center = self.player.hit_rect.center
-            center_save = self.hit_rect.center
-        if elapsed < 2500:
-            self.hit_rect.center = center_save
+            self.rect.center = self.hit_rect.center
+            self.center_save = self.hit_rect.center
+        elif elapsed < 3000:
+            self.hit_rect.center = self.center_save
+            self.rect.center = self.hit_rect.center
         else:
-            if collide_hit_rect(self, self.necromancer):
+            if collide_hit_rect(self, self.player) and not self.necromancer.attack_lockedon:
                 self.necromancer.attack_lockedon = True
+                attack2 = NecromancerAttack2(self.player, self, self.necromancer)
+                self.all_sprites.add(attack2)
+                print("Attack2 Created")
+            else:
+                print("Attack2 not created: collision =", collide_hit_rect(self, self.player), 
+                      "attack_lockedon =", self.necromancer.attack_lockedon)
             self.kill()
+           
+        
+
+class NecromancerAttack2(pygame.sprite.Sprite):
+    def __init__(self, player, lockonsprite, necromancer):
+        pygame.sprite.Sprite.__init__(self)
+        self.player = player
+        self.lockonsprite = lockonsprite
+        self.necromancer = necromancer
+        self.animation_frames = self.player.assets['necromancer_attack2_effect']
+        self.image = self.animation_frames[0]
+        self.rect = self.image.get_rect()
+        self.hit_rect = NECRO_ATTACK2_HITRECT.copy()
+        self.hit_rect.center = self.lockonsprite.center_save
+        self.rect.center = self.hit_rect.center
+        self.last_update = 0
+        self.current_animation_frame = 0
+        self.frame_rate = 100
+        self.hit_rect.center = lockonsprite.center_save  
+        self.rect.center = self.hit_rect.center
+        self.player_hit = False
+        print("NecromancerAttack2 position:", self.rect.center)
+        print(self.image.get_size())
+
+    def update(self):
+
+        if collide_hit_rect(self, self.player) and not self.player_hit:
+            self.player.health -= NECRO_ATTACK2_DMG
+            self.player.state = 'hurt'
+            self.player_hit = True
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.frame_rate:
+            self.last_update = now
+            if self.current_animation_frame < len(self.animation_frames):
+                self.image = self.animation_frames[self.current_animation_frame]
+                old_center = self.rect.center
+                self.rect = self.image.get_rect()
+                self.rect.center = old_center
+                self.current_animation_frame += 1
+            else:
+                self.necromancer.attack_lockedon = False
+                self.kill()
+
+
+
+
+
 
             
 

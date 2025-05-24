@@ -208,6 +208,11 @@ def load_assets():
     img = pygame.image.load(os.path.join(IMG_DIR,'attack_lockon1.png')).convert_alpha()
     img = pygame.transform.scale(img, (TILESIZE*2.5, TILESIZE*2.5))
     assets['attack_lockon'].append(img)
+    assets['necromancer_attack2_effect'] = []
+    for i in range(1,10):
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack2_effect0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE*2.5, TILESIZE*2.5))
+        assets['necromancer_attack2_effect'].append(img)
     
 
     return assets
