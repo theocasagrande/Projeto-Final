@@ -1196,20 +1196,20 @@ class Necromancer(pygame.sprite.Sprite):
         if self.state in ('death'):
             return 
         now = pygame.time.get_ticks()
-        elapsed = now - self.last_attack_chain
+        elapsed1 = now - self.last_attack_chain
 
       
-        if elapsed > 5000 and not self.attack1_activated:
+        if elapsed1 > 5000 and not self.attack1_activated:
             self.state = 'attack1'
             self.attack1_activated = True
 
       
-        if elapsed > 15000 and not self.attack2_activated:
+        if elapsed1 > 15000 and not self.attack2_activated:
             self.state = 'attack2'
             self.attack2_activated = True
 
        
-        if elapsed > 25000 and not self.attack3_activated:
+        if elapsed1 > 25000 and not self.attack3_activated:
             self.state = 'attack3'
             self.attack3_activated = True
 
@@ -1227,7 +1227,6 @@ class AttackLockOn(pygame.sprite.Sprite):
         self.necromancer = necromancer
         self.player = player
         self.image = self.assets['attack_lockon'][0]
-        print("AttackLockOn image size:", self.image.get_size())
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.last_update = pygame.time.get_ticks()
@@ -1236,13 +1235,12 @@ class AttackLockOn(pygame.sprite.Sprite):
 
     def update(self):
         now = pygame.time.get_ticks()
-        elapsed = now - self.last_update
-        print("AttackLockOn position:", self.rect.center, "Player position:", self.player.hit_rect.center)
-        if elapsed < 2000:
+        elapsed2 = now - self.last_update
+        if elapsed2 < 2000:
             self.hit_rect.center = self.player.hit_rect.center
             self.rect.center = self.hit_rect.center
             self.center_save = self.hit_rect.center
-        elif elapsed < 3000:
+        elif elapsed2 < 3000:
             self.hit_rect.center = self.center_save
             self.rect.center = self.hit_rect.center
         else:
@@ -1250,10 +1248,6 @@ class AttackLockOn(pygame.sprite.Sprite):
                 self.necromancer.attack_lockedon = True
                 attack2 = NecromancerAttack2(self.player, self, self.necromancer)
                 self.all_sprites.add(attack2)
-                print("Attack2 Created")
-            else:
-                print("Attack2 not created: collision =", collide_hit_rect(self, self.player), 
-                      "attack_lockedon =", self.necromancer.attack_lockedon)
             self.kill()
            
         
@@ -1276,8 +1270,6 @@ class NecromancerAttack2(pygame.sprite.Sprite):
         self.hit_rect.center = lockonsprite.center_save  
         self.rect.center = self.hit_rect.center
         self.player_hit = False
-        print("NecromancerAttack2 position:", self.rect.center)
-        print(self.image.get_size())
 
     def update(self):
 
