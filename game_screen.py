@@ -45,20 +45,22 @@ def game_screen(window, player):
     all_projectiles = pygame.sprite.Group()
     enemy_projectiles = pygame.sprite.Group()
     bossteleport = pygame.sprite.Group()
-
+    for tile_object in assets['map'].tmxdata.objects:
+        if tile_object.name == 'wall':
+            wall = Obstacle(tile_object.x * SCALE, tile_object.y * SCALE, tile_object.width * SCALE, tile_object.height * SCALE)
+            all_sprites.add(wall)
+            game_walls.add(wall)
     for tile_object in assets['map'].tmxdata.objects:
         if tile_object.name == 'player':
             if playerselected == 'knight':
                 playerselected = Knight(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
             elif player == 'wizard':
                 playerselected = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
-        if tile_object.name == 'wall':
-            wall = Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
-            all_sprites.add(wall)
-            game_walls.add(wall)
         if tile_object.name == 'skeleton':
             skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets)
             all_skeletons.add(skeleton1)
+            
+
         if tile_object.name == 'skeleton_archer':
             skeleton_archer1 = SkeletonArcher(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets, enemy_projectiles)
             all_skeletons.add(skeleton_archer1)

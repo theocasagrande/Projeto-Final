@@ -920,11 +920,12 @@ class SkeletonArcherArrow(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.original_image, angle)
         self.rect = self.image.get_rect(center=archer_pos)
         
-       
-        direction = pygame.math.Vector2(dx, dy).normalize() if (dx, dy) != (0, 0) else pygame.math.Vector2(1, 0)
-        self.velocity = direction * ARROW_SPEED
+        if (dx, dy) != (0, 0):
+            direction = pygame.math.Vector2(dx, dy).normalize()  
+            self.velocity = direction * ARROW_SPEED
+        else:
+            self.velocity = pygame.math.Vector2(1, 0)
         
-        # Set up hitbox
         self.hit_rect = SKELETON_ARCHER_ARROW_RECT.copy()
         self.hit_rect.center = self.rect.center
 
@@ -1043,7 +1044,11 @@ class Necromancer(pygame.sprite.Sprite):
         self.lockon = AttackLockOn(self.player, self)
         self.lockon_saved_pos = self.player.hit_rect.center
         self.all_sprites.add(self.lockon)
-
+    def attack3necro(self):
+        for dir in ('up','down','left','right','up_right','up_left','down_left','down_right'):
+            attack3 = NecromancerAttack3(self.player,self,dir)
+            self.enemy_projectiles.add(attack3)
+            self.all_sprites.add(attack3)
 
     def update(self, dt):
     
@@ -1127,6 +1132,9 @@ class Necromancer(pygame.sprite.Sprite):
                 else:
                     self.current_attack3_frame = 0
                     self.state = 'idle'
+                    attack3player = NecromancerAttack3(self.player, self, 'player')
+                    self.enemy_projectiles.add(attack3player)
+                    self.all_sprites.add(attack3player)
 
         
         #Animação de tomar dano e parado
@@ -1211,6 +1219,7 @@ class Necromancer(pygame.sprite.Sprite):
        
         if elapsed1 > 25000 and not self.attack3_activated:
             self.state = 'attack3'
+            self.attack3necro()
             self.attack3_activated = True
 
         # Reset após os 15 segundos
@@ -1290,6 +1299,96 @@ class NecromancerAttack2(pygame.sprite.Sprite):
                 self.necromancer.attack_lockedon = False
                 self.kill()
 
+class NecromancerAttack3(pygame.sprite.Sprite):
+        def __init__(self, player, necromancer, direction):
+            pygame.sprite.Sprite.__init__(self)
+            self.player = player
+            self.necromancer = necromancer
+            self.image = self.player.assets['necromancer_attack3_effect'][0]
+            self.original_image = self.player.assets['necromancer_attack3_effect'][0]
+            self.rect = self.image.get_rect()
+            self.hit_rect = NECRO_ATTACK3_HIT_RECT.copy()
+            self.hit_rect.center = self.necromancer.hit_rect.center
+            self.direction = direction
+            self.enemy_projectiles = self.necromancer.enemy_projectiles
+            self.pos = vec(self.necromancer.rect.center)  # Start at necromancer's center
+            self.vel = vec(0, 0)
+
+            self.enemy_projectiles.add(self)
+
+
+            if direction == 'player':
+                target_pos = vec(self.player.rect.center)
+                direction_vector = target_pos - self.pos
+                if direction_vector.length() > 0:
+                    self.vel = direction_vector.normalize() * NECRO_ATTACK3_SPEED
+                else:
+                    self.vel = vec(0, 0) 
+                angle = math.degrees(math.atan2(-direction_vector.y, direction_vector.x))
+                self.image = pygame.transform.rotate(self.original_image, angle)
+                self.rect = self.image.get_rect(center=self.pos)
+            else:
+                speed = NECRO_ATTACK3_SPEED
+                if direction == 'up':
+                    self.pos.y = self.necromancer.rect.top - self.hit_rect.height / 2
+                    self.vel = vec(0, -speed)
+                    angle = 90
+                elif direction == 'down':
+                    self.pos.y = self.necromancer.rect.bottom + self.hit_rect.height / 2
+                    self.vel = vec(0, speed)
+                    angle = -90
+                elif direction == 'left':
+                    self.pos.x = self.necromancer.rect.left - self.hit_rect.width / 2
+                    self.vel = vec(-speed, 0)
+                    angle = 180
+                elif direction == 'right':
+                    self.pos.x = self.necromancer.rect.right + self.hit_rect.width / 2
+                    self.vel = vec(speed, 0)
+                    angle = 0
+                elif direction == 'up_right':
+                    self.pos = vec(self.necromancer.rect.right + self.hit_rect.width / 2,
+                                self.necromancer.rect.top - self.hit_rect.height / 2)
+                    self.vel = vec(speed, -speed).normalize() * speed
+                    angle = 45
+                elif direction == 'up_left':
+                    self.pos = vec(self.necromancer.rect.left - self.hit_rect.width / 2,
+                                self.necromancer.rect.top - self.hit_rect.height / 2)
+                    self.vel = vec(-speed, -speed).normalize() * speed
+                    angle = 135
+                elif direction == 'down_right':
+                    self.pos = vec(self.necromancer.rect.right + self.hit_rect.width / 2,
+                                self.necromancer.rect.bottom + self.hit_rect.height / 2)
+                    self.vel = vec(speed, speed).normalize() * speed
+                    angle = -45
+                elif direction == 'down_left':
+                    self.pos = vec(self.necromancer.rect.left - self.hit_rect.width / 2,
+                                self.necromancer.rect.bottom + self.hit_rect.height / 2)
+                    self.vel = vec(-speed, speed).normalize() * speed
+                    angle = 225
+                self.image = pygame.transform.rotate(self.original_image, angle)
+                self.rect = self.image.get_rect(center=self.pos)
+
+            self.hit_rect.center = self.pos
+            
+        def update(self, dt):
+            self.pos += self.vel * dt
+            self.rect.center = self.pos
+            self.hit_rect.center = self.pos
+
+            # Collision with player
+            if collide_hit_rect(self, self.player):
+                self.player.health -= NECRO_ATTACK3_DMG
+                self.player.state = 'hurt'
+                self.kill()
+            # Collision with walls
+            for wall in self.player.game_walls:
+                if pygame.sprite.collide_rect(self, wall):
+                    self.kill()
+
+
+
+
+        
 
 
 
