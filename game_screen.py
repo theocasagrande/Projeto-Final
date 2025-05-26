@@ -45,20 +45,24 @@ def game_screen(window, player):
     all_projectiles = pygame.sprite.Group()
     enemy_projectiles = pygame.sprite.Group()
     bossteleport = pygame.sprite.Group()
-
+    for tile_object in assets['map'].tmxdata.objects:
+        if tile_object.name == 'wall':
+            wall = Obstacle(tile_object.x * SCALE, tile_object.y * SCALE, tile_object.width * SCALE, tile_object.height * SCALE)
+            all_sprites.add(wall)
+            game_walls.add(wall)
     for tile_object in assets['map'].tmxdata.objects:
         if tile_object.name == 'player':
             if playerselected == 'knight':
                 playerselected = Knight(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
             elif player == 'wizard':
                 playerselected = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
-        if tile_object.name == 'wall':
-            wall = Obstacle(tile_object.x * SCALE,tile_object.y * SCALE,tile_object.width * SCALE,tile_object.height * SCALE)
-            all_sprites.add(wall)
-            game_walls.add(wall)
         if tile_object.name == 'skeleton':
             skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets)
             all_skeletons.add(skeleton1)
+            
+        if tile_object.name == 'elite_orc':
+            elite_orc1 = EliteOrc(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets)
+            all_skeletons.add(elite_orc1)
         if tile_object.name == 'skeleton_archer':
             skeleton_archer1 = SkeletonArcher(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets, enemy_projectiles)
             all_skeletons.add(skeleton_archer1)
@@ -88,24 +92,13 @@ def game_screen(window, player):
                     return BOSS, player
 
         for sprite in all_sprites:
-            if isinstance(sprite, Wizard):
+            if isinstance(sprite, (Wizard, Knight, Archer, Skeleton, SkeletonArcher, SkeletonArcherArrow, EliteOrc)):
                 sprite.update(dt)
-            elif isinstance(sprite, Knight):
-                sprite.update(dt)
-            elif isinstance(sprite, Archer):
-                sprite.update(dt)
-            elif isinstance(sprite, Skeleton):
-                sprite.update(dt)
-            elif isinstance(sprite, SkeletonArcher):
-                sprite.update(dt)
-            elif isinstance(sprite, SkeletonArcherArrow):
-                sprite.update(dt)
-            elif isinstance(sprite, Obstacle):
-                continue
-            elif isinstance(sprite, BossRoomTeleport):
-                continue
+            elif isinstance(sprite, (Obstacle, BossRoomTeleport)):
+                continue  
             else:
-                sprite.update()
+                sprite.update()  
+
         camera.update(playerselected)
         now = pygame.time.get_ticks()
     
@@ -113,22 +106,24 @@ def game_screen(window, player):
         selfhits = pygame.sprite.spritecollide(playerselected, all_skeletons, False, collide_hit_rect)
         if selfhits:
             for hit in selfhits:
-                if now - playerselected.last_hit_time > 1000:  # 1000 ms = 1 segundo
-                    playerselected.health -= MOB_DAMAGE
-                    hit.vel = vec(0, 0)
-                    playerselected.state = 'hurt'
-                    playerselected.last_hit_time = now  # Atualiza o tempo do último hit
-        
+                if not isinstance(hit, EliteOrc):
+                    if now - playerselected.last_hit_time > 1000:  # 1000 ms = 1 segundo
+                        hit.vel = vec(0, 0)
+                        playerselected.state = 'hurt'
+                        if hit.state != 'death':
+                            playerselected.health -= MOB_DAMAGE
+                        playerselected.last_hit_time = now  # Atualiza o tempo do último hit
+            
         if playerselected.health <= 0:
-            return QUIT
+            return QUIT, player
         window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
-            if not isinstance(sprite, Obstacle):
-                if hasattr(sprite, 'hit_rect'):
-                    pygame.draw.rect(window, (255, 0, 0), camera.apply_rect(sprite.hit_rect), 1)
-                else:
-                    pygame.draw.rect(window, (0, 255, 0), camera.apply_rect(sprite.rect), 1)
+            # if not isinstance(sprite, Obstacle):
+            #     if hasattr(sprite, 'hit_rect'):
+            #         pygame.draw.rect(window, (255, 0, 0), camera.apply_rect(sprite.hit_rect), 1)
+            #     else:
+            #         pygame.draw.rect(window, (0, 255, 0), camera.apply_rect(sprite.rect), 1)
 
 
         teleport = pygame.sprite.spritecollide(playerselected, bossteleport, False, collide_hit_rect)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="141">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="196">
  <tileset firstgid="1" source="../mainlevbuild.tsx"/>
  <tileset firstgid="2561" source="../decorative.tsx"/>
  <layer id="1" name="Background" width="100" height="100">
@@ -749,8 +749,6 @@
   <object id="127" name="wall" x="1372" y="828" width="72" height="248"/>
   <object id="128" name="wall" x="832" y="932" width="176" height="92"/>
   <object id="129" name="wall" x="896" y="896" width="48" height="56"/>
-  <object id="130" name="skeleton" x="268" y="424"/>
-  <object id="133" name="skeleton" x="332" y="424"/>
   <object id="134" name="skeleton" x="388" y="424"/>
   <object id="135" name="wall" x="1268" y="1540" width="36" height="28"/>
   <object id="136" name="wall" x="1328" y="1520" width="16" height="52"/>
@@ -758,5 +756,55 @@
   <object id="138" name="wall" x="1532" y="1392" width="24" height="48"/>
   <object id="139" name="wall" x="1532" y="1500" width="24" height="56"/>
   <object id="140" name="skeleton_archer" x="468" y="424"/>
+  <object id="142" name="skeleton_archer" x="1048" y="204"/>
+  <object id="143" name="skeleton_archer" x="1228" y="188"/>
+  <object id="144" name="skeleton_archer" x="1132" y="640"/>
+  <object id="145" name="skeleton_archer" x="1432" y="916"/>
+  <object id="146" name="skeleton_archer" x="1424" y="992"/>
+  <object id="147" name="skeleton_archer" x="1408" y="968"/>
+  <object id="148" name="skeleton_archer" x="1408" y="860"/>
+  <object id="149" name="skeleton_archer" x="1488" y="1104"/>
+  <object id="150" name="skeleton_archer" x="1320" y="1108"/>
+  <object id="151" name="skeleton_archer" x="1492" y="1488"/>
+  <object id="152" name="skeleton_archer" x="1308" y="1476"/>
+  <object id="153" name="skeleton_archer" x="1388" y="1404"/>
+  <object id="154" name="skeleton_archer" x="988" y="1416"/>
+  <object id="155" name="skeleton_archer" x="740" y="972"/>
+  <object id="156" name="skeleton_archer" x="740" y="1008"/>
+  <object id="157" name="skeleton_archer" x="824" y="840"/>
+  <object id="158" name="skeleton_archer" x="1092" y="996"/>
+  <object id="159" name="skeleton_archer" x="772" y="528"/>
+  <object id="160" name="skeleton_archer" x="920" y="532"/>
+  <object id="161" name="skeleton_archer" x="372" y="676"/>
+  <object id="162" name="skeleton_archer" x="128" y="1004"/>
+  <object id="163" name="skeleton_archer" x="124" y="1112"/>
+  <object id="166" name="skeleton" x="1088" y="220"/>
+  <object id="167" name="skeleton" x="1088" y="188"/>
+  <object id="168" name="skeleton" x="1228" y="220"/>
+  <object id="171" name="skeleton" x="1256" y="812"/>
+  <object id="172" name="skeleton" x="1316" y="816"/>
+  <object id="173" name="skeleton" x="1420" y="844"/>
+  <object id="174" name="skeleton" x="1412" y="928"/>
+  <object id="175" name="skeleton" x="1408" y="896"/>
+  <object id="176" name="skeleton" x="1408" y="1048"/>
+  <object id="177" name="skeleton" x="1412" y="1016"/>
+  <object id="178" name="skeleton" x="1376" y="1472"/>
+  <object id="179" name="skeleton" x="1412" y="1468"/>
+  <object id="180" name="skeleton" x="1448" y="1476"/>
+  <object id="181" name="skeleton" x="1048" y="1400"/>
+  <object id="182" name="skeleton" x="1016" y="1456"/>
+  <object id="183" name="skeleton" x="1092" y="1040"/>
+  <object id="184" name="skeleton" x="740" y="1056"/>
+  <object id="185" name="skeleton" x="812" y="616"/>
+  <object id="186" name="skeleton" x="880" y="616"/>
+  <object id="187" name="skeleton" x="844" y="660"/>
+  <object id="188" name="skeleton" x="428" y="632"/>
+  <object id="189" name="skeleton" x="436" y="692"/>
+  <object id="190" name="skeleton" x="196" y="1024"/>
+  <object id="191" name="skeleton" x="200" y="1072"/>
+  <object id="192" name="skeleton" x="204" y="1128"/>
+  <object id="193" name="elite_orc" x="300" y="424"/>
+  <object id="194" name="elite_orc" x="760" y="196"/>
+  <object id="195" name="elite_orc" x="1156" y="204"/>
  </objectgroup>
 </map>
