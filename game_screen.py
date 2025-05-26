@@ -99,7 +99,7 @@ def game_screen(window, player):
                     return BOSS, player
 
         for sprite in all_sprites:
-            if isinstance(sprite, (Wizard, Knight, Archer, Skeleton, SkeletonArcher, SkeletonArcherArrow, EliteOrc)):
+            if isinstance(sprite, (Wizard, Knight, Archer, Skeleton, SkeletonArcher, SkeletonArcherArrow, EliteOrc, Arrow)):
                 sprite.update(dt)
             elif isinstance(sprite, (Obstacle, BossRoomTeleport)):
                 continue  

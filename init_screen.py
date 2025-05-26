@@ -14,6 +14,7 @@ def init_screen(window):
     loading = base_font.render("Carregando...", True, (255, 0, 0))
     wizardimage = assets['wizard_idle'][0]
     knightimage = assets['knight_idle'][0]
+    archerimage = assets['archer_idle'][0]
 
     clock = pygame.time.Clock()
     running = True
@@ -43,16 +44,20 @@ def init_screen(window):
             # Posições dos personagens
             wizard_x = (WIDTH // 2 - wizardimage.get_width() // 2) - 100
             knight_x = (WIDTH // 2 - knightimage.get_width() // 2) + 100
+            archer_x = (WIDTH // 2 - archerimage.get_width() // 2) + 0
             y_image = HEIGHT // 2 - wizardimage.get_height() // 2
+            y_image_archer = (HEIGHT // 2 - archerimage.get_height() // 2) + 100
 
             window.blit(wizardimage, (wizard_x, y_image))
             window.blit(knightimage, (knight_x, y_image))
+            window.blit(archerimage, (archer_x, y_image_archer))
 
             # Verifica se o mouse está sobre os textos
             font_size = 28
             hover_font_size = 34
             wizard_rect = pygame.Rect(wizard_x, y_image + wizardimage.get_height() + 10, 100, 40)
             knight_rect = pygame.Rect(knight_x, y_image + knightimage.get_height() + 10, 150, 40)
+            archer_rect = pygame.Rect(archer_x, y_image_archer + archerimage.get_height() + 10, 150, 40)
 
             # Wizard select
             if wizard_rect.collidepoint(mouse_pos):
@@ -77,6 +82,18 @@ def init_screen(window):
                 font = pygame.font.Font(None, font_size)
             knightselect = font.render("Cavaleiro", True, (255, 0, 0))
             window.blit(knightselect, (knight_x + knightimage.get_width() // 2 - knightselect.get_width() // 2, y_image + knightimage.get_height() + 10))
+
+            # Archer select
+            if archer_rect.collidepoint(mouse_pos):
+                font = pygame.font.Font(None, hover_font_size)
+                if mouse_clicked[0]:  # Botão direito do mouse
+                    player = "archer"
+                    selectscreen = False
+                    show_loading = True
+            else:
+                font = pygame.font.Font(None, font_size)
+            archerselect = font.render("Arqueiro", True, (255, 0, 0))
+            window.blit(archerselect, (archer_x + archerimage.get_width() // 2 - archerselect.get_width() // 2, y_image_archer + archerimage.get_height() + 10))
 
             pygame.display.flip()
 

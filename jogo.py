@@ -13,7 +13,7 @@ from boss_room import boss_room
 
 pygame.init()
 
-window = pygame.display.set_mode((WIDTH, HEIGHT))
+window = pygame.display.set_mode((WIDTH, HEIGHT),pygame.FULLSCREEN)
 pygame.display.set_caption("Soul Knightmare")
 
 

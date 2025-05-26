@@ -9,8 +9,10 @@ ANIM_DIR = path.join(path.dirname(__file__), 'assets', 'anim')
 MAP_DIR = path.join(path.dirname(__file__), 'assets', 'maps')
 # Estabelece a pasta que contem os arquivos de configuração.
 # Dados gerais do jogo.
-WIDTH = 1280  # Largura da tela 80 grids
-HEIGHT = 720 # Altura da tela 45 grids
+pygame.init()
+info = pygame.display.Info()
+WIDTH = info.current_w
+HEIGHT = info.current_h # Altura da tela 45 grids
 FPS = 60 # Frames por segundo
 
 LIGHTGRAY = (200, 200, 200)
@@ -63,6 +65,8 @@ ICE_ATTACK_RECT  = pygame.Rect(0,0,80,80)
 WIZARD_SPECIAL_RECT = pygame.Rect(0,0,64,64)
 KNIGHT_HITBOX_RECT = pygame.Rect(0,0,70,70)
 KNIGHT_SPECIAL_HITBOX_RECT = pygame.Rect(0,0, 150,150)
+ARROW_HIT_RECT = pygame.Rect(0,0, TILESIZE//2, TILESIZE//2)
+ARCHER_ARROW_DMG = 25
 
 
 #BOSS STATS
