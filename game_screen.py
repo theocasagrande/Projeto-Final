@@ -59,8 +59,10 @@ def game_screen(window, player):
         if tile_object.name == 'player':
             if playerselected == 'knight':
                 playerselected = Knight(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
-            elif player == 'wizard':
+            elif playerselected == 'wizard':
                 playerselected = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
+            elif playerselected == 'archer':
+                playerselected = Archer(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', all_sprites, game_walls, all_skeletons, all_projectiles)
         if tile_object.name == 'skeleton':
             skeleton1 = Skeleton(tile_object.x * SCALE, tile_object.y * SCALE, 'idle', playerselected, game_walls, assets)
             all_skeletons.add(skeleton1)
