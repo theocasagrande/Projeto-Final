@@ -163,124 +163,34 @@ def load_assets():
     assets['necromancer_idle'] = []
     for i in range(1,9):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_idle0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['necromancer_idle'].append(img)
     assets['necromancer_walk'] = []
     for i in range(1,8):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_walk0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['necromancer_walk'].append(img)
     assets['necromancer_death'] = []
     for i in range(1,10):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_death0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['necromancer_death'].append(img)
     assets['necromancer_attack1'] = []
     for i in range(1,13):
-        if i >= 9:
-            img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
-            img = pygame.transform.scale(img, (TILESIZE*6, TILESIZE*6))
-        else:
-            img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
-            img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
+        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack1_0{i}.png')).convert_alpha()
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['necromancer_attack1'].append(img)
     assets['necromancer_attack2'] = []
     for i in range(1,14):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack2_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['necromancer_attack2'].append(img)
     assets['necromancer_attack3'] = []
     for i in range(1,18):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack3_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
+        img = pygame.transform.scale(img, (TILESIZE, TILESIZE))
         assets['necromancer_attack3'].append(img)
-    assets['necromancer_hurt'] = []
-    for i in range(1,5):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_hurt0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*4, TILESIZE*4))
-        assets['necromancer_hurt'].append(img)
-    assets['bossroom'] = TiledMap(path.join(MAP_DIR, 'bossroom.tmx'), SCALE)  # 16 * 4 = 64
-    assets['bossroom_surface'] = assets['bossroom'].make_map()
-    assets['bossroom_rect'] = assets['bossroom_surface'].get_rect()
-    assets['bossroom_width'] = assets['bossroom'].width
-    assets['bossroom_height'] = assets['bossroom'].height
-    assets['attack_lockon'] = []
-    img = pygame.image.load(os.path.join(IMG_DIR,'attack_lockon1.png')).convert_alpha()
-    img = pygame.transform.scale(img, (TILESIZE*2.5, TILESIZE*2.5))
-    assets['attack_lockon'].append(img)
-    assets['necromancer_attack2_effect'] = []
-    for i in range(1,10):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack2_effect0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*2.5, TILESIZE*2.5))
-        assets['necromancer_attack2_effect'].append(img)
-    assets['necromancer_attack3_effect'] = []
-    img = pygame.image.load(os.path.join(ANIM_DIR, 'necromancer', f'necromancer_attack3_effect01.png')).convert_alpha()
-    img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-    assets['necromancer_attack3_effect'].append(img)
 
-
-    assets['elite_orc_idle'] = []
-    for i in range(1,7):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'elite_orc', f'elite_orc_idle0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['elite_orc_idle'].append(img)
-    assets['elite_orc_walk'] = []
-    for i in range(1,9):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'elite_orc', f'elite_orc_walk0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['elite_orc_walk'].append(img)
-    assets['elite_orc_attack1'] = []
-    for i in range(1,8):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'elite_orc', f'elite_orc_attack1_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['elite_orc_attack1'].append(img)
-    assets['elite_orc_attack2'] = []
-    for i in range(1,11):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'elite_orc', f'elite_orc_attack2_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['elite_orc_attack2'].append(img)
-    assets['elite_orc_hurt'] = []
-    for i in range(1,5):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'elite_orc', f'elite_orc_hurt0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['elite_orc_hurt'].append(img)
-    assets['elite_orc_death'] = []
-    for i in range(1,5):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'elite_orc', f'elite_orc_death0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['elite_orc_death'].append(img)
-
-
-    assets['axeman_idle'] = []
-    for i in range(1,7):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'axeman', f'axeman_idle0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['axeman_idle'].append(img)
-    assets['axeman_walk'] = []
-    for i in range(1,7):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'axeman', f'axeman_walk0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['axeman_walk'].append(img)
-    assets['axeman_attack1'] = []
-    for i in range(1,10):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'axeman', f'axeman_attack1_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['axeman_attack1'].append(img)
-    assets['axeman_attack2'] = []
-    for i in range(1,12):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'axeman', f'axeman_attack2_0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['axeman_attack2'].append(img)
-    assets['axeman_hurt'] = []
-    for i in range(1,5):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'axeman', f'axeman_hurt0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['axeman_hurt'].append(img)
-    assets['axeman_death'] = []
-    for i in range(1,5):
-        img = pygame.image.load(os.path.join(ANIM_DIR, 'axeman', f'axeman_death0{i}.png')).convert_alpha()
-        img = pygame.transform.scale(img, (TILESIZE*1.5, TILESIZE*1.5))
-        assets['axeman_death'].append(img)
     return assets
 
 

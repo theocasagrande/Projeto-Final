@@ -95,7 +95,7 @@ class Archer (pygame.sprite.Sprite):
         self.original_walk_frames = self.assets['archer_walk']
         self.walk_frames = list(self.original_walk_frames)
         self.current_framewalk = 0
-        self.health = ARCHER_HEALTH
+        self.health = PLAYER_HEALTH
         self.last_hit_time = 0
         self.last_speed = 0
         self.playerspeed = PLAYER_SPEED

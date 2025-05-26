@@ -2,14 +2,13 @@
 # ----- Importa e inicia pacotes
 import pygame
 import random
-from config import *
+from config import WIDTH, HEIGHT, IMG_DIR, INIT, GAME, QUIT, ICE_ATTACK_DMG
 from assets import load_assets
 import time
 import os
 from os import path
 from init_screen import init_screen
 from game_screen import game_screen
-from boss_room import boss_room
 
 pygame.init()
 
@@ -22,9 +21,7 @@ while state != QUIT:
     if state == INIT:
         state, player = init_screen(window)
     elif state == GAME:
-        state, player = game_screen(window, player)
-    elif state == BOSS:
-        state = boss_room(window,player)
+        state = game_screen(window, player)
     else:
         state = QUIT
 
