@@ -109,6 +109,8 @@ def boss_room(window, player):
                 sprite.update(dt)
             elif isinstance(sprite, SkeletonArcherArrow):
                 sprite.update(dt)
+            elif isinstance(sprite, NecromancerAttack3):
+                sprite.update(dt)
             elif isinstance(sprite, Obstacle):
                 continue
             elif isinstance(sprite, BossRoomTeleport):
