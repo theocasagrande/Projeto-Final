@@ -60,6 +60,9 @@ def boss_room(window, player):
             elif player == 'wizard':
                 playerselected = Wizard(tile_object.x * SCALE, tile_object.y * SCALE, 'idle',
                                         all_sprites, game_walls, all_skeletons, all_projectiles)
+            elif player == 'archer':
+                playerselected = Archer(tile_object.x * SCALE, tile_object.y * SCALE, 'idle',
+                                        all_sprites, game_walls, all_skeletons, all_projectiles)
         elif tile_object.name == 'wall':
             wall = Obstacle(tile_object.x * SCALE, tile_object.y * SCALE,
                             tile_object.width * SCALE, tile_object.height * SCALE)
@@ -110,6 +113,12 @@ def boss_room(window, player):
             elif isinstance(sprite, SkeletonArcherArrow):
                 sprite.update(dt)
             elif isinstance(sprite, NecromancerAttack3):
+                sprite.update(dt)
+            elif isinstance(sprite, Archer):
+                sprite.update(dt)
+            elif isinstance(sprite, Arrow):
+                sprite.update(dt)
+            elif isinstance(sprite, ArrowSpecial):
                 sprite.update(dt)
             elif isinstance(sprite, Obstacle):
                 continue
