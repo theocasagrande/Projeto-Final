@@ -1491,18 +1491,15 @@ class Necromancer(pygame.sprite.Sprite):
 
       
         if elapsed1 > 5000 and not self.attack1_activated:
-        if elapsed1 > 5000 and not self.attack1_activated:
             self.state = 'attack1'
             self.attack1_activated = True
 
       
         if elapsed1 > 15000 and not self.attack2_activated:
-        if elapsed1 > 15000 and not self.attack2_activated:
             self.state = 'attack2'
             self.attack2_activated = True
 
-       
-        if elapsed1 > 25000 and not self.attack3_activated:
+    
         if elapsed1 > 25000 and not self.attack3_activated:
             self.state = 'attack3'
             self.attack3necro()
@@ -1536,7 +1533,7 @@ class AttackLockOn(pygame.sprite.Sprite):
         now = pygame.time.get_ticks()
         elapsed2 = now - self.last_update
         if elapsed2 < 2000:
-        elapsed2 = now - self.last_update
+            elapsed2 = now - self.last_update
         if elapsed2 < 2000:
             self.hit_rect.center = self.player.hit_rect.center
             self.rect.center = self.hit_rect.center
@@ -1550,7 +1547,6 @@ class AttackLockOn(pygame.sprite.Sprite):
             self.hit_rect.center = self.center_save
             self.rect.center = self.hit_rect.center
         else:
-            if collide_hit_rect(self, self.player) and not self.necromancer.attack_lockedon:
             if collide_hit_rect(self, self.player) and not self.necromancer.attack_lockedon:
                 self.necromancer.attack_lockedon = True
                 attack2 = NecromancerAttack2(self.player, self, self.necromancer)
