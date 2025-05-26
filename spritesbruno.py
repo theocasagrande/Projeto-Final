@@ -333,7 +333,6 @@ class KnightAttackHitbox(pygame.sprite.Sprite):
         self.player = player
         self.hit_rect = KNIGHT_HITBOX_RECT.copy()
         self.hit_rect.center = self.player.hit_rect.center
-        self.all_skeletons = self.player.all_skeletons
         self.attack_duration = 600 
         self.last_update = pygame.time.get_ticks()
         self.image = pygame.Surface((self.hit_rect.width, self.hit_rect.height), pygame.SRCALPHA)
@@ -375,7 +374,6 @@ class KnightSpecialHitbox(pygame.sprite.Sprite):
         self.player = player
         self.hit_rect = KNIGHT_SPECIAL_HITBOX_RECT.copy()
         self.hit_rect.center = self.player.hit_rect.center
-        self.all_skeletons = self.player.all_skeletons
         self.attack_duration = 500 
         self.last_update = pygame.time.get_ticks()
         self.image = pygame.Surface((self.hit_rect.width, self.hit_rect.height), pygame.SRCALPHA)
