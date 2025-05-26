@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="141">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="196">
  <tileset firstgid="1" source="../mainlevbuild.tsx"/>
  <tileset firstgid="2561" source="../decorative.tsx"/>
  <layer id="1" name="Background" width="100" height="100">
@@ -745,12 +745,10 @@
   <object id="121" name="wall" x="748" y="1328" width="16" height="120"/>
   <object id="122" name="wall" x="504" y="1440" width="244" height="8"/>
   <object id="123" name="wall" x="472" y="1424" width="40" height="24"/>
-  <object id="124" name="bossroom" x="592" y="1252" width="80" height="72"/>
+  <object id="124" name="bossroom" x="592" y="1252" width="80" height="56"/>
   <object id="127" name="wall" x="1372" y="828" width="72" height="248"/>
   <object id="128" name="wall" x="832" y="932" width="176" height="92"/>
   <object id="129" name="wall" x="896" y="896" width="48" height="56"/>
-  <object id="130" name="skeleton" x="268" y="424"/>
-  <object id="133" name="skeleton" x="332" y="424"/>
   <object id="134" name="skeleton" x="388" y="424"/>
   <object id="135" name="wall" x="1268" y="1540" width="36" height="28"/>
   <object id="136" name="wall" x="1328" y="1520" width="16" height="52"/>
@@ -760,11 +758,11 @@
   <object id="140" name="skeleton_archer" x="468" y="424"/>
   <object id="142" name="skeleton_archer" x="1048" y="204"/>
   <object id="143" name="skeleton_archer" x="1228" y="188"/>
-  <object id="144" name="skeleton_archer" x="1132" y="640"/>
-  <object id="145" name="skeleton_archer" x="1432" y="916"/>
-  <object id="146" name="skeleton_archer" x="1424" y="992"/>
-  <object id="147" name="skeleton_archer" x="1408" y="968"/>
-  <object id="148" name="skeleton_archer" x="1408" y="860"/>
+  <object id="144" name="skeleton_archer" x="1156" y="668"/>
+  <object id="145" name="skeleton_archer" x="1472" y="928"/>
+  <object id="146" name="skeleton_archer" x="1336" y="932"/>
+  <object id="147" name="skeleton_archer" x="1472" y="976"/>
+  <object id="148" name="skeleton_archer" x="1472" y="816"/>
   <object id="149" name="skeleton_archer" x="1488" y="1104"/>
   <object id="150" name="skeleton_archer" x="1320" y="1108"/>
   <object id="151" name="skeleton_archer" x="1492" y="1488"/>
@@ -783,13 +781,13 @@
   <object id="166" name="skeleton" x="1088" y="220"/>
   <object id="167" name="skeleton" x="1088" y="188"/>
   <object id="168" name="skeleton" x="1228" y="220"/>
-  <object id="171" name="skeleton" x="1256" y="812"/>
-  <object id="172" name="skeleton" x="1316" y="816"/>
-  <object id="173" name="skeleton" x="1420" y="844"/>
-  <object id="174" name="skeleton" x="1412" y="928"/>
-  <object id="175" name="skeleton" x="1408" y="896"/>
-  <object id="176" name="skeleton" x="1408" y="1048"/>
-  <object id="177" name="skeleton" x="1412" y="1016"/>
+  <object id="171" name="skeleton" x="1260" y="796"/>
+  <object id="172" name="skeleton" x="1328" y="820"/>
+  <object id="173" name="skeleton" x="1400" y="812"/>
+  <object id="174" name="skeleton" x="1336" y="884"/>
+  <object id="175" name="skeleton" x="1476" y="872"/>
+  <object id="176" name="skeleton" x="1480" y="1040"/>
+  <object id="177" name="skeleton" x="1332" y="980"/>
   <object id="178" name="skeleton" x="1376" y="1472"/>
   <object id="179" name="skeleton" x="1412" y="1468"/>
   <object id="180" name="skeleton" x="1448" y="1476"/>

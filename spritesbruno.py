@@ -3,7 +3,7 @@ import os
 from config import *
 from assets import load_assets
 from game_screen import *
-from spritestheo import distance_to, collision, collide_hit_rect
+from spritestheo import *
 vec = pygame.math.Vector2
 class Knight(pygame.sprite.Sprite):
     def __init__(self, x, y, state, all_sprites, game_walls, all_skeletons, all_projectiles):
@@ -333,6 +333,7 @@ class KnightAttackHitbox(pygame.sprite.Sprite):
         self.player = player
         self.hit_rect = KNIGHT_HITBOX_RECT.copy()
         self.hit_rect.center = self.player.hit_rect.center
+        self.all_skeletons = self.player.all_skeletons
         self.attack_duration = 600 
         self.last_update = pygame.time.get_ticks()
         self.image = pygame.Surface((self.hit_rect.width, self.hit_rect.height), pygame.SRCALPHA)
@@ -355,13 +356,17 @@ class KnightAttackHitbox(pygame.sprite.Sprite):
 
 
 
-        hits = pygame.sprite.spritecollide(self, self.player.all_skeletons, False, collide_hit_rect)
-        if hits:
-            for skeleton in hits:
-                if skeleton not in  self.damaged_enemies:
-                    skeleton.health -= KNIGHT_ATTACK_DMG
+        hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
+        for skeleton in hits:
+            if skeleton not in self.damaged_enemies:
+                skeleton.health -= KNIGHT_ATTACK_DMG
+                # Aplica o estado 'hurt' apenas se não for EliteOrc em attack2
+                if isinstance(skeleton, EliteOrc):
+                    if skeleton.state != 'attack2':
+                        skeleton.state = 'hurt'
+                elif not isinstance(skeleton, Necromancer):
                     skeleton.state = 'hurt'
-                    self.damaged_enemies.add(skeleton)
+                self.damaged_enemies.add(skeleton)
         
         if now - self.last_update >= self.attack_duration:
             self.kill()
@@ -374,6 +379,7 @@ class KnightSpecialHitbox(pygame.sprite.Sprite):
         self.player = player
         self.hit_rect = KNIGHT_SPECIAL_HITBOX_RECT.copy()
         self.hit_rect.center = self.player.hit_rect.center
+        self.all_skeletons = self.player.all_skeletons
         self.attack_duration = 500 
         self.last_update = pygame.time.get_ticks()
         self.image = pygame.Surface((self.hit_rect.width, self.hit_rect.height), pygame.SRCALPHA)
@@ -397,13 +403,17 @@ class KnightSpecialHitbox(pygame.sprite.Sprite):
 
 
 
-        hits = pygame.sprite.spritecollide(self, self.player.all_skeletons, False, collide_hit_rect)
-        if hits:
-            for skeleton in hits:
-                if skeleton not in  self.damaged_enemies:
-                    skeleton.health -= KNIGHT_SPECIAL_DMG
+        hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
+        for skeleton in hits:
+            if skeleton not in self.damaged_enemies:
+                skeleton.health -= KNIGHT_SPECIAL_DMG
+                # Aplica o estado 'hurt' apenas se não for EliteOrc em attack2
+                if isinstance(skeleton, EliteOrc):
+                    if skeleton.state != 'attack2':
+                        skeleton.state = 'hurt'
+                elif not isinstance(skeleton, Necromancer):
                     skeleton.state = 'hurt'
-                    self.damaged_enemies.add(skeleton)
+                self.damaged_enemies.add(skeleton)
         
         if now - self.last_update >= self.attack_duration:
             self.kill()
