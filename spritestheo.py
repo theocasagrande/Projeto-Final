@@ -1872,14 +1872,14 @@ class Archer(pygame.sprite.Sprite):
         self.original_hit_rect_center = self.hit_rect.center
         self.rect.center = self.pos
 
-        self.health = KNIGHT_HEALTH
-        self.total_health = KNIGHT_HEALTH
-        self.attack_cooldown = 800
+        self.health = ARCHER_HEALTH
+        self.total_health = ARCHER_HEALTH
+        self.attack_cooldown = 350
         self.special_cooldown = 5000
         self.last_attack = 0
         self.last_special = 0
         self.last_hit_time = 0
-        self.playerspeed = PLAYER_SPEED
+        self.playerspeed = ARCHER_SPEED
         self.damaged_enemies = set()
         self._layer = WIZARD_LAYER
         self.attack_offset = 0
@@ -1957,9 +1957,10 @@ class Archer(pygame.sprite.Sprite):
         arrow = Arrow(self.rect.centerx, self.rect.centery, self, self.direction)
         self.all_projectiles.add(arrow)
         self.all_sprites.add(arrow)
-    # def special(self):
-    #     special = KnightSpecialHitbox(self)
-    #     self.all_sprites.add(special)
+    def special(self):
+        special = ArrowSpecial(self.rect.centerx, self.rect.centery, self, self.direction)
+        self.all_projectiles.add(special)
+        self.all_sprites.add(special)
         
 
     def update(self, dt):
@@ -2172,6 +2173,78 @@ class Arrow(pygame.sprite.Sprite):
             if pygame.sprite.collide_rect(self, wall):
                 self.kill()
 
+class ArrowSpecial(pygame.sprite.Sprite):
+    def __init__(self, x, y, player, direction):
+        pygame.sprite.Sprite.__init__(self)
+        self.player = player
+        self.assets = player.assets
+        self.original_image = self.assets['archer_special_arrow'][0]
+        self.image = self.rotate_image(direction)
+        self.all_skeletons = player.all_skeletons
+        self.all_sprites = player.all_sprites
+        self.rect = self.image.get_rect()
+        self.hit_rect = ARROW_SPECIAL_HIT_RECT.copy()
+        self.rect.center = (x, y)
+        self.hit_rect.center = self.rect.center
+        self.speed = 500
+        self.vx, self.vy = self.get_velocity_vector(direction)
+        self.damaged_enemies = set()
+    def rotate_image(self, direction):
+         if direction == 'up':
+             return pygame.transform.rotate(self.original_image, 0)
+         elif direction == 'down':
+             return pygame.transform.rotate(self.original_image, 0)
+         elif direction == 'left':
+             return pygame.transform.rotate(self.original_image, 180)
+         elif direction == 'right':
+             return pygame.transform.rotate(self.original_image, 0)
+         elif direction == 'up_left':
+             return pygame.transform.rotate(self.original_image, 180)
+         elif direction == 'up_right':
+             return pygame.transform.rotate(self.original_image, 0)
+         elif direction == 'down_left':
+             return pygame.transform.rotate(self.original_image, 180)
+         elif direction == 'down_right':
+             return pygame.transform.rotate(self.original_image, 0)
+    def get_velocity_vector(self, direction):
+         if direction == 'up':
+             return (1, 0)
+         elif direction == 'down':
+             return (1,0)
+         elif direction == 'left':
+             return (-1, 0)
+         elif direction == 'right':
+             return (1, 0)
+         elif direction == 'up_left':
+             return (-1, 0)
+         elif direction == 'up_right':
+             return (1, 0)
+         elif direction == 'down_left':
+             return (-1, 0)
+         elif direction == 'down_right':
+             return (1, 0)
+    def update(self, dt):
+        self.rect.x += self.vx * self.speed * dt
+        self.rect.y += self.vy * self.speed * dt
+
+        self.hit_rect.center = self.rect.center
+
+        # Check for collision with walls
+        hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
+        for skeleton in hits:
+            if skeleton not in self.damaged_enemies:
+                skeleton.health -= ARCHER_SPECIAL_DMG
+                # Aplica o estado 'hurt' apenas se não for EliteOrc em attack2
+                if isinstance(skeleton, EliteOrc):
+                    if skeleton.state != 'attack2':
+                        skeleton.state = 'hurt'
+                elif not isinstance(skeleton, Necromancer):
+                    skeleton.state = 'hurt'
+                self.damaged_enemies.add(skeleton)
+        #Se a flecha collidir com uma parede, ela desaparece.
+        for wall in self.player.game_walls:
+            if pygame.sprite.collide_rect(self, wall):
+                self.kill()
          
 
     
