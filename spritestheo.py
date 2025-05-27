@@ -720,7 +720,6 @@ class Wizard(pygame.sprite.Sprite):
         self.iceticks = 1000
         self.specialticks = 5000
         self.speedticks = 10000
-        self.speedticks = 10000
         self.last_ice_attack = pygame.time.get_ticks()
         self.last_special = pygame.time.get_ticks()
         self.direction = 'right'
@@ -733,6 +732,9 @@ class Wizard(pygame.sprite.Sprite):
         self.total_health = WIZARD_HEALTH
         self.last_hit_time = 0
         self.last_speed = 0
+        self.last_slow = 0
+        self.slowed = False
+        self.slowed_duration = 5000  # Duração do efeito de lentidão em milissegundos
         self.playerspeed = PLAYER_SPEED
         self.speedboost_cooldown = 8000
         self._layer = WIZARD_LAYER
@@ -925,6 +927,11 @@ class Wizard(pygame.sprite.Sprite):
         now2 = pygame.time.get_ticks()
         if now2 - self.last_speed >= self.speedboost_cooldown:
             self.playerspeed = PLAYER_SPEED
+        if self.slowed:
+            self.playerspeed = PLAYER_SPEED * 0.5
+            if now2 - self.last_slow >= self.slowed_duration:
+                self.slowed = False
+                self.playerspeed = PLAYER_SPEED
 
     #Função para criar o ataque de gelo
     def ice_attack(self):
@@ -1283,7 +1290,7 @@ class Necromancer(pygame.sprite.Sprite):
                     self.acc += dist.normalize()
 
     def attack1necro(self):
-        for i in range(3):
+        for i in range(2):
             offset_x = random.randint(-2 * TILESIZE, 2 * TILESIZE)
             offset_y = random.randint(-2 * TILESIZE, 2 * TILESIZE)
             spawn_x = self.pos.x + offset_x
@@ -1413,11 +1420,17 @@ class Necromancer(pygame.sprite.Sprite):
                         self.current_attack3_frame += 1
                     else:
                         self.current_attack3_frame = 0
-                        self.state = 'idle'
                         self.attack3necro()
                         attack3player = NecromancerAttack3(self.player, self, 'player')
                         self.enemy_projectiles.add(attack3player)
                         self.all_sprites.add(attack3player)
+                        
+                        self.attack3_remaining -= 1
+                        if self.attack3_remaining > 0:
+                            self.state = 'attack3'  # repete o ataque
+                        else:
+                            self.state = 'idle'
+
 
             
             #Animação de tomar dano e parado
@@ -1487,31 +1500,20 @@ class Necromancer(pygame.sprite.Sprite):
             return 
         now = pygame.time.get_ticks()
         elapsed1 = now - self.last_attack_chain
-        elapsed1 = now - self.last_attack_chain
 
       
-        if elapsed1 > 5000 and not self.attack1_activated:
-            self.state = 'attack1'
-            self.attack1_activated = True
+        if elapsed1 > 4000:
+            atq = random.randint(1, 4)
+            if atq == 1:
+                self.state = 'attack1'
+            elif atq == 2:
+                self.state = 'attack2'
+            else:
+                self.state = 'attack3'
+                self.attack3_remaining = random.randint(2, 5)
 
-      
-        if elapsed1 > 15000 and not self.attack2_activated:
-            self.state = 'attack2'
-            self.attack2_activated = True
-
-    
-        if elapsed1 > 25000 and not self.attack3_activated:
-            self.state = 'attack3'
-            self.attack3necro()
-            self.attack3necro()
-            self.attack3_activated = True
-
-        # Reset após os 15 segundos
-        if  self.attack1_activated and  self.attack2_activated and  self.attack3_activated:
-            self.attack1_activated = False
-            self.attack2_activated = False
-            self.attack3_activated = False
             self.last_attack_chain = now
+            
 class AttackLockOn(pygame.sprite.Sprite):
     def __init__(self, player, necromancer):
         pygame.sprite.Sprite.__init__(self)
@@ -1619,7 +1621,7 @@ class NecromancerAttack3(pygame.sprite.Sprite):
                 target_pos = vec(self.player.rect.center)
                 direction_vector = target_pos - self.pos
                 if direction_vector.length() > 0:
-                    self.vel = direction_vector.normalize() * NECRO_ATTACK3_SPEED
+                    self.vel = direction_vector.normalize() * NECRO_ATTACK3_SPEED * 2
                 else:
                     self.vel = vec(0, 0) 
                 angle = math.degrees(math.atan2(-direction_vector.y, direction_vector.x))
@@ -1802,6 +1804,9 @@ class NecromancerAttack3(pygame.sprite.Sprite):
             if collide_hit_rect(self, self.player):
                 self.player.health -= NECRO_ATTACK3_DMG
                 self.player.state = 'hurt'
+                if not self.player.slowed:
+                    self.player.slowed = True
+                    self.player.last_slow = pygame.time.get_ticks()  
                 self.kill()
             # Collision with walls
             for wall in self.player.game_walls:
@@ -1867,6 +1872,9 @@ class Archer(pygame.sprite.Sprite):
         self.damaged_enemies = set()
         self._layer = WIZARD_LAYER
         self.attack_offset = 0
+        self.slowed = False
+        self.last_slow = 0
+        self.slowed_duration = 5000  # Duração do efeito slow em milissegundos
         all_sprites.add(self, layer=self._layer)
 
 
@@ -1931,7 +1939,7 @@ class Archer(pygame.sprite.Sprite):
                     self.state = 'walk'
 
         if self.vel.length() > 0:
-            self.vel = self.vel.normalize() * PLAYER_SPEED
+            self.vel = self.vel.normalize() * self.playerspeed
             if self.state not in ('attack', 'special', 'hurt'):
                 self.state = 'walk'
         else:
@@ -2033,6 +2041,13 @@ class Archer(pygame.sprite.Sprite):
         self.hit_rect.centery = self.pos.y
         collision(self, self.game_walls, 'y')
         self.rect.center = self.hit_rect.center
+
+        now2 = pygame.time.get_ticks()
+        if self.slowed:
+            self.playerspeed = ARCHER_SPEED * 0.5
+            if now2 - self.last_slow >= self.slowed_duration:
+                self.slowed = False
+                self.playerspeed = ARCHER_SPEED
 
     def rotate_image(self, direction):
 

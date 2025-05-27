@@ -65,6 +65,9 @@ class Knight(pygame.sprite.Sprite):
         self.damaged_enemies = set()
         self._layer = WIZARD_LAYER
         self.attack_offset = 0
+        self.slowed = False
+        self.slowed_duration = 5000
+        self.last_slow = 0
         all_sprites.add(self, layer=self._layer)
 
 
@@ -129,7 +132,7 @@ class Knight(pygame.sprite.Sprite):
                     self.state = 'walk'
 
         if self.vel.length() > 0:
-            self.vel = self.vel.normalize() * PLAYER_SPEED
+            self.vel = self.vel.normalize() * self.playerspeed
             if self.state not in ('attack', 'special', 'hurt'):
                 self.state = 'walk'
         else:
@@ -229,6 +232,13 @@ class Knight(pygame.sprite.Sprite):
         self.hit_rect.centery = self.pos.y
         collision(self, self.game_walls, 'y')
         self.rect.center = self.hit_rect.center
+
+        now2 = pygame.time.get_ticks()
+        if self.slowed:
+            self.playerspeed = PLAYER_SPEED * 0.5
+            if now2 - self.last_slow >= self.slowed_duration:
+                self.slowed = False
+                self.playerspeed = PLAYER_SPEED
 
     def rotate_image(self, direction):
 
