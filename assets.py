@@ -9,6 +9,7 @@ from tilemap import *
 def load_assets():
     assets = {}
     assets['fontinit'] = pygame.font.Font(os.path.join(FNT_DIR,'Bleeding_Cowboys.ttf'), 28)
+    assets['boss_font'] = pygame.font.Font(os.path.join(FNT_DIR,'TrashGhostly.ttf'), 40)
     assets['skeleton_idle'] = []
     for i in range(1,7):
         img = pygame.image.load(os.path.join(ANIM_DIR, 'skeleton', f'skeleton_idle0{i}.png')).convert_alpha()

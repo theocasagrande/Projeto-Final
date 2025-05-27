@@ -734,7 +734,7 @@ class Wizard(pygame.sprite.Sprite):
         self.last_speed = 0
         self.last_slow = 0
         self.slowed = False
-        self.slowed_duration = 3000  # Duração do efeito de lentidão em milissegundos
+        self.slowed_duration = 4000  # Duração do efeito de lentidão em milissegundos
         self.playerspeed = PLAYER_SPEED
         self.speedboost_cooldown = 8000
         self._layer = WIZARD_LAYER
@@ -1064,28 +1064,28 @@ class Wizard_attack_ice(pygame.sprite.Sprite):
         cx, cy = center
         distance, target = distance_to_group(self.player, all_skeletons)
         # Posiciona o ataque de gelo em cima do inimigo se tiver perto o suficiente.
-        if target and distance <= 5*TILESIZE:
+        if target and distance <= 6*TILESIZE:
             self.rect.center = target.rect.center
         # Se não estiver dentro de 5 tiles de distância, posiciona o ataque 5 tiles na direção que o mago está se movimentando (4 tiles na diagonal).
         else:
             
             offset = vec(0, 0)
             if direction == 'right':
-                offset = vec(5*TILESIZE, 0)
+                offset = vec(6*TILESIZE, 0)
             elif direction == 'left':
-                offset = vec(-5*TILESIZE, 0)
+                offset = vec(-6*TILESIZE, 0)
             elif direction == 'up':
-                offset = vec(0, -5*TILESIZE)
+                offset = vec(0, -6*TILESIZE)
             elif direction == 'down':
-                offset = vec(0, 5*TILESIZE)
+                offset = vec(0, 6*TILESIZE)
             elif direction == 'up_right':
-                offset = vec(4*TILESIZE, -4*TILESIZE)  # Diagonal
+                offset = vec(5*TILESIZE, -5*TILESIZE)  # Diagonal
             elif direction == 'up_left':
-                offset = vec(-4*TILESIZE, -4*TILESIZE)
+                offset = vec(-5*TILESIZE, -5*TILESIZE)
             elif direction == 'down_right':
-                offset = vec(4*TILESIZE, 4*TILESIZE)
+                offset = vec(5*TILESIZE, 5*TILESIZE)
             elif direction == 'down_left':
-                offset = vec(-4*TILESIZE, 4*TILESIZE)
+                offset = vec(-5*TILESIZE, 5*TILESIZE)
             
             self.rect.center = (center[0] + offset.x, center[1] + offset.y)
 
@@ -1503,7 +1503,7 @@ class Necromancer(pygame.sprite.Sprite):
         elapsed1 = now - self.last_attack_chain
 
       
-        if elapsed1 > 5000:
+        if elapsed1 > 4500:
             atq = random.randint(1, 4)
             if atq == 1:
                 self.state = 'attack1'
@@ -1511,7 +1511,7 @@ class Necromancer(pygame.sprite.Sprite):
                 self.state = 'attack2'
             else:
                 self.state = 'attack3'
-                self.attack3_remaining = random.randint(2, 5)
+                self.attack3_remaining = random.randint(1, 3)
 
             self.last_attack_chain = now
             
@@ -1535,20 +1535,17 @@ class AttackLockOn(pygame.sprite.Sprite):
     def update(self):
         now = pygame.time.get_ticks()
         elapsed2 = now - self.last_update
-        if elapsed2 < 2000:
+        if elapsed2 < 1500:
             elapsed2 = now - self.last_update
-        if elapsed2 < 2000:
+        if elapsed2 < 1500:
             self.hit_rect.center = self.player.hit_rect.center
             self.rect.center = self.hit_rect.center
             self.center_save = self.hit_rect.center
-        elif elapsed2 < 3000:
+        elif elapsed2 < 2500:
             self.hit_rect.center = self.center_save
             self.rect.center = self.hit_rect.center
             self.rect.center = self.hit_rect.center
             self.center_save = self.hit_rect.center
-        elif elapsed2 < 3000:
-            self.hit_rect.center = self.center_save
-            self.rect.center = self.hit_rect.center
         else:
             if collide_hit_rect(self, self.player) and not self.necromancer.attack_lockedon:
                 self.necromancer.attack_lockedon = True
@@ -1875,7 +1872,7 @@ class Archer(pygame.sprite.Sprite):
         self.attack_offset = 0
         self.slowed = False
         self.last_slow = 0
-        self.slowed_duration = 3000  # Duração do efeito slow em milissegundos
+        self.slowed_duration = 4000  # Duração do efeito slow em milissegundos
         all_sprites.add(self, layer=self._layer)
 
 
@@ -2339,7 +2336,7 @@ class Knight(pygame.sprite.Sprite):
         self._layer = WIZARD_LAYER
         self.attack_offset = 0
         self.slowed = False
-        self.slowed_duration = 3000
+        self.slowed_duration = 4000
         self.last_slow = 0
         all_sprites.add(self, layer=self._layer)
 

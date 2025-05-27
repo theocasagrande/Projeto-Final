@@ -8,6 +8,31 @@ from spritestheo import *
 # ----- Cores
 vec = pygame.math.Vector2
 
+def draw_boss_health(surface, x, y, width, height, pct, font, boss_name):
+    if pct < 0:
+        pct = 0
+    # Fundo da barra (vermelho)
+    outline_rect = pygame.Rect(x, y, width, height)
+    pygame.draw.rect(surface, (255, 0, 0), outline_rect)
+    # Barra preenchida (verde)
+    fill_width = int(pct * width)
+    fill_rect = pygame.Rect(x, y, fill_width, height)
+    pygame.draw.rect(surface, (0, 255, 0), fill_rect)
+    # Contorno branco
+    pygame.draw.rect(surface, (139, 0 , 0), outline_rect, 3)
+
+    # Renderiza o nome do boss acima da barra, com sombra para melhorar a visibilidade
+    text_surface = font.render(boss_name, True, (230, 0, 0))
+    shadow_surface = font.render(boss_name, True, (0, 0, 0))
+
+    # Ajuste a posição do texto - aqui um pouco acima da barra
+    text_rect = text_surface.get_rect(midbottom=(x + width // 2, y + 80))
+
+    # Desenha sombra (offset de 2 pixels para direita e baixo)
+    surface.blit(shadow_surface, (text_rect.x + 2, text_rect.y + 2))
+    # Desenha texto branco em cima
+    surface.blit(text_surface, text_rect)
+
 
 def draw_player_health(surface, x, y, pct):
     if pct < 0:
@@ -148,22 +173,18 @@ def boss_room(window, player):
         selfhits = pygame.sprite.spritecollide(playerselected, all_skeletons, False, collide_hit_rect)
         if selfhits:
             for hit in selfhits:
-                if now - playerselected.last_hit_time > 1000:  # 1000 ms = 1 segundo
-                    playerselected.health -= MOB_DAMAGE
-                    hit.vel = vec(0, 0)
-                    playerselected.state = 'hurt'
-                    playerselected.last_hit_time = now  # Atualiza o tempo do último hit
+                if not isinstance(hit, Necromancer):  # Evita dano do próprio boss
+                    if now - playerselected.last_hit_time > 1000:  # 1000 ms = 1 segundo
+                        playerselected.health -= MOB_DAMAGE
+                        hit.vel = vec(0, 0)
+                        playerselected.state = 'hurt'
+                        playerselected.last_hit_time = now  # Atualiza o tempo do último hit
         
         if playerselected.health <= 0:
             return RETRY, playerselected, True
         window.blit(assets['bossroom_surface'], camera.apply_rect(assets['bossroom_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
-            if not isinstance(sprite, Obstacle):
-                if hasattr(sprite, 'hit_rect'):
-                    pygame.draw.rect(window, (255, 0, 0), camera.apply_rect(sprite.hit_rect), 1)
-                else:
-                    pygame.draw.rect(window, (0, 255, 0), camera.apply_rect(sprite.rect), 1)
             if isinstance(sprite, Necromancer):
                 if sprite.state == 'death':
                     pygame.mixer.music.stop()
@@ -171,18 +192,21 @@ def boss_room(window, player):
                         return WINNER, playerselected, True
 
         for skeleton in all_skeletons:
-            # Calculate health bar position relative to camera
-            pos = camera.apply(skeleton)
-            health_pos = pygame.Rect(pos.x, pos.y - 10, skeleton.rect.width, 5)
-            
-            # Draw background (empty) health bar
-            pygame.draw.rect(window, (255, 0, 0), health_pos)
-            
-            health_width = (skeleton.health / skeleton.total_health) * skeleton.rect.width
-            current_health_pos = pygame.Rect(pos.x, pos.y - 10, health_width, 5)
-            pygame.draw.rect(window, (0, 255, 0), current_health_pos)
+            if not isinstance(skeleton, Necromancer):
+                # Calculate health bar position relative to camera
+                pos = camera.apply(skeleton)
+                health_pos = pygame.Rect(pos.x, pos.y - 10, skeleton.rect.width, 5)
+                
+                # Draw background (empty) health bar
+                pygame.draw.rect(window, (255, 0, 0), health_pos)
+                
+                health_width = (skeleton.health / skeleton.total_health) * skeleton.rect.width
+                current_health_pos = pygame.Rect(pos.x, pos.y - 10, health_width, 5)
+                pygame.draw.rect(window, (0, 255, 0), current_health_pos)
 
         draw_player_health(window, 10, 10, playerselected.health / playerselected.total_health)
+        if 'boss' in locals() and boss is not None:
+            draw_boss_health(window, WIDTH // 2 - 300, 20, 600, 40, boss.health / boss.total_health, assets['boss_font'], "Thanatos, O Invocador de Cadaveres")
         pygame.display.update()
     return state, playerselected
 
