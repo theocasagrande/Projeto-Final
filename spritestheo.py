@@ -54,7 +54,7 @@ def distance_to_group(sprite, group):
         return smallestdistance, target
     else:
         return smallestdistance, None
-    
+
 
 class Skeleton(pygame.sprite.Sprite):
     #Função Construtora
@@ -138,7 +138,7 @@ class Skeleton(pygame.sprite.Sprite):
         # Se o player estiver entre 5 tiles de distancia do esqueleto, 
         # o esqueleto começa a ir em direção ao player, evitando collidir com outros esqueletos
         if self.state != 'death' and self.state != 'attack':
-            if distance_to(self.player, self) <= 5*TILESIZE:
+            if distance_to(self.player, self) <= 8*TILESIZE:
                 if self.state != 'hurt':
                     self.state = 'move'
                 self.rot = (self.player.pos - self.pos).angle_to(vec(1, 0))
@@ -525,7 +525,7 @@ class EliteOrc(pygame.sprite.Sprite):
         # Se o player estiver entre 5 tiles de distancia do esqueleto, 
         # o esqueleto começa a ir em direção ao player, evitando collidir com outros esqueletos
         if self.state != 'death':
-            if distance_to(self.player, self) <= 5*TILESIZE:
+            if distance_to(self.player, self) <= 8*TILESIZE:
                 now = pygame.time.get_ticks()
                 if now - self.last_attack2 > 10000:
                     self.state = 'attack2'
@@ -1684,22 +1684,6 @@ class NecromancerAttack3(pygame.sprite.Sprite):
                     self.kill()
 
 
-
-
-        
-
-
-
-
-
-            
-
-
-
-
-
-
-
 class NecromancerAttack2(pygame.sprite.Sprite):
     def __init__(self, player, lockonsprite, necromancer):
         pygame.sprite.Sprite.__init__(self)
@@ -2099,23 +2083,49 @@ class Archer(pygame.sprite.Sprite):
         self.rect.center = old_center
         self.hit_rect.center = self.rect.center
 
-        
-
 class Arrow(pygame.sprite.Sprite):
     def __init__(self, x, y, player, direction):
-         pygame.sprite.Sprite.__init__(self)
-         self.player = player
-         self.original_image = player.assets['archer_flecha'][0]
-         self.image = self.rotate_image(direction)
-         self.all_skeletons = player.all_skeletons
-         self.rect = self.image.get_rect()
-         self.hit_rect = ARROW_HIT_RECT.copy()
-         self.rect.center = (x, y)
-         self.hit_rect.center = self.rect.center
-         self.speed = 500
-         self.direction = direction
-         self.vx, self.vy = self.get_velocity_vector(direction)
-         self.damaged_enemies = set()
+        super().__init__()
+        self.player = player
+        self.original_image = player.assets['archer_flecha'][0]
+        self.image = self.rotate_image(direction)
+        self.rect = self.image.get_rect(center=(x, y))
+        self.hit_rect = ARROW_HIT_RECT.copy()
+        self.hit_rect.center = self.rect.center
+
+        self.all_skeletons = player.all_skeletons
+        self.game_walls = player.game_walls
+        self.range = 10 * TILESIZE
+        self.speed = 500
+        self.direction = direction
+        self.vx, self.vy = self.get_velocity_vector(direction)
+        self.damaged_enemies = set()
+        self.spawn_pos = pygame.math.Vector2(x, y)
+
+        # Encontra alvo se estiver próximo (auto-mira)
+        self.target = self.get_closest_enemy_in_range(5 * TILESIZE)
+        if self.target:
+            dx = self.target.hit_rect.centerx - x
+            dy = self.target.hit_rect.centery - y
+            distance = math.hypot(dx, dy)
+            if distance != 0:
+                self.vx = dx / distance
+                self.vy = dy / distance
+                angle = math.degrees(math.atan2(-dy, dx))
+                self.image = pygame.transform.rotate(self.original_image, angle)
+                self.rect = self.image.get_rect(center=(x, y))
+
+    def get_closest_enemy_in_range(self, max_distance):
+        closest_enemy = None
+        closest_dist = max_distance
+        for enemy in self.all_skeletons:
+            dist = math.hypot(enemy.hit_rect.centerx - self.rect.centerx,
+                              enemy.hit_rect.centery - self.rect.centery)
+            if dist <= closest_dist:
+                closest_enemy = enemy
+                closest_dist = dist
+        return closest_enemy
+
     def rotate_image(self, direction):
          if direction == 'up':
              return pygame.transform.rotate(self.original_image, 90)
@@ -2133,6 +2143,7 @@ class Arrow(pygame.sprite.Sprite):
              return pygame.transform.rotate(self.original_image, -135)
          elif direction == 'down_right':
              return pygame.transform.rotate(self.original_image, -45)
+
     def get_velocity_vector(self, direction):
          if direction == 'up':
              return (0, -1)
@@ -2150,29 +2161,35 @@ class Arrow(pygame.sprite.Sprite):
              return (-0.707, 0.707)
          elif direction == 'down_right':
              return (0.707, 0.707)
+
     def update(self, dt):
+        # Move
         self.rect.x += self.vx * self.speed * dt
         self.rect.y += self.vy * self.speed * dt
-
         self.hit_rect.center = self.rect.center
 
-        # Check for collision with walls
+        # Verifica alcance máximo
+        distance_traveled = pygame.math.Vector2(self.rect.center).distance_to(self.spawn_pos)
+        if distance_traveled > self.range:
+            self.kill()
+
+        # Colisão com inimigos
         hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
         for skeleton in hits:
             if skeleton not in self.damaged_enemies:
                 skeleton.health -= ARCHER_ARROW_DMG
-                # Aplica o estado 'hurt' apenas se não for EliteOrc em attack2
                 if isinstance(skeleton, EliteOrc):
                     if skeleton.state != 'attack2':
                         skeleton.state = 'hurt'
                 elif not isinstance(skeleton, Necromancer):
                     skeleton.state = 'hurt'
                 self.damaged_enemies.add(skeleton)
-        #Se a flecha collidir com uma parede, ela desaparece.
-        for wall in self.player.game_walls:
+                self.kill()  # Mata a flecha após acertar
+
+        # Colisão com parede
+        for wall in self.game_walls:
             if pygame.sprite.collide_rect(self, wall):
                 self.kill()
-
 class ArrowSpecial(pygame.sprite.Sprite):
     def __init__(self, x, y, player, direction):
         pygame.sprite.Sprite.__init__(self)

@@ -7,6 +7,7 @@ SND_DIR = path.join(path.dirname(__file__), 'assets', 'snd')
 FNT_DIR = path.join(path.dirname(__file__), 'assets', 'font')
 ANIM_DIR = path.join(path.dirname(__file__), 'assets', 'anim')
 MAP_DIR = path.join(path.dirname(__file__), 'assets', 'maps')
+SND_DIR = path.join(path.dirname(__file__), 'assets', 'snd')
 # Estabelece a pasta que contem os arquivos de configuração.
 # Dados gerais do jogo.
 pygame.init()

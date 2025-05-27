@@ -10,6 +10,7 @@ from spritesbruno import *
 # ----- Cores
 vec = pygame.math.Vector2
 
+
 def draw_player_health(surface, x, y, pct):
     if pct < 0:
         pct = 0
@@ -29,6 +30,7 @@ def draw_player_health(surface, x, y, pct):
 def boss_room(window, player):
     # ----- Inicia o jogo
     pygame.init()
+    pygame.mixer.init()
     clock = pygame.time.Clock()
 
     print(player)
@@ -87,7 +89,13 @@ def boss_room(window, player):
     all_sprites.add(enemy_projectiles)
     
 
-    # ----- Cria o relógio para controlar o FPS
+    pygame.mixer.music.load(assets['BOSSMUSIC'])
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.7)  # Ajuste o volume conforme necessário
+
+
+    # print("BOSSMUSIC asset:", assets['BOSSMUSIC'])
+
     while state != DONE:
 
         dt = clock.tick(FPS) / 1000  # seconds

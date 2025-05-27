@@ -322,6 +322,8 @@ def load_assets():
     img = pygame.image.load(os.path.join(ANIM_DIR, 'archer', 'archer_special_01.png')).convert_alpha()
     img = pygame.transform.scale(img, (TILESIZE *1.5, TILESIZE* 1.5))
     assets['archer_special_arrow'].append(img)
+    assets['BOSSMUSIC'] = path.join(SND_DIR, 'Soul Of Cinder.wav')  # <- só o caminho
+
     return assets
 
 
