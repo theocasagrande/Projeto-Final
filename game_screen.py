@@ -5,8 +5,6 @@ from config import *
 from assets import load_assets
 import time
 from spritestheo import *
-from spriteszaltron import *
-from spritesbruno import *
 # ----- Cores
 vec = pygame.math.Vector2
 
@@ -91,7 +89,7 @@ def game_screen(window, player):
                 if event.key == pygame.K_ESCAPE:
                     state = DONE
                 if event.key == pygame.K_l:
-                    return BOSS, player
+                    return BOSS, player, True
 
         for sprite in all_sprites:
             if isinstance(sprite, (Wizard, Knight, Archer, Skeleton, SkeletonArcher, SkeletonArcherArrow, EliteOrc, Arrow, ArrowSpecial)):
@@ -117,7 +115,7 @@ def game_screen(window, player):
                         playerselected.last_hit_time = now  # Atualiza o tempo do último hit
             
         if playerselected.health <= 0:
-            return QUIT, player
+            return RETRY, player, False
         window.blit(assets['map_surface'], camera.apply_rect(assets['map_rect']))
         for sprite in all_sprites:
             window.blit(sprite.image, camera.apply(sprite))
@@ -130,7 +128,7 @@ def game_screen(window, player):
 
         teleport = pygame.sprite.spritecollide(playerselected, bossteleport, False, collide_hit_rect)
         if teleport:
-            return BOSS, player
+            return BOSS, player, True
         for skeleton in all_skeletons:
             # Calculate health bar position relative to camera
             pos = camera.apply(skeleton)

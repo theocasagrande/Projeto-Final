@@ -6,21 +6,25 @@ from assets import load_assets
 
 BLACK = (0, 0, 0)
 
-def init_screen(window):
+def retry_screen(window,player, enteredbossroom):
+    pygame.mixer.init()
+    pygame.mixer.music.stop()
     assets = load_assets()
-
+    playerselected = player
+    enteredboss = enteredbossroom
     base_font = assets['fontinit']
-    texto = base_font.render("Pressione Enter para começar", True, (255, 0, 0))
+    morte = base_font.render("Você morreu.", True, (255, 0, 0))
+    texto = base_font.render("Pressione Enter para tentar de novo.", True, (255, 0, 0))
     loading = base_font.render("Carregando...", True, (255, 0, 0))
     wizardimage = assets['wizard_idle'][0]
     knightimage = assets['knight_idle'][0]
     archerimage = assets['archer_idle'][0]
 
+
     clock = pygame.time.Clock()
     running = True
     show_loading = False
     selectscreen = False
-    player = None
 
     while running:
         mouse_pos = pygame.mouse.get_pos()
@@ -32,6 +36,7 @@ def init_screen(window):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     selectscreen = True
+                    player = None
                 elif event.key == pygame.K_ESCAPE:
                     return QUIT
 
@@ -98,10 +103,14 @@ def init_screen(window):
             window.fill(BLACK)
             window.blit(loading, (WIDTH // 2 - loading.get_width() // 2, HEIGHT // 2 - loading.get_height() // 2))
             pygame.display.flip()
-            return GAME, player
+            if enteredboss:
+                return BOSS, player
+            else:
+                return GAME, player
 
         else:
             window.fill(BLACK)
+            window.blit(morte, (WIDTH // 2 - morte.get_width() // 2, (HEIGHT // 2 - morte.get_height() // 2) - 200))
             window.blit(texto, (WIDTH // 2 - texto.get_width() // 2, HEIGHT // 2 - texto.get_height() // 2))
             pygame.display.flip()
             clock.tick(FPS)
