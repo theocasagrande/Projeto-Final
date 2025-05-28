@@ -760,7 +760,6 @@
   <object id="143" name="skeleton_archer" x="1228" y="188"/>
   <object id="144" name="skeleton_archer" x="1156" y="668"/>
   <object id="146" name="skeleton_archer" x="1356" y="932"/>
-  <object id="149" name="skeleton_archer" x="1488" y="1104"/>
   <object id="150" name="skeleton_archer" x="1320" y="1108"/>
   <object id="151" name="skeleton_archer" x="1492" y="1488"/>
   <object id="152" name="skeleton_archer" x="1308" y="1476"/>
