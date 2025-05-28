@@ -4,7 +4,7 @@ from os import path
 from config import *
 from assets import load_assets
 import time
-from spritestheo import *
+from sprites import *
 # ----- Cores
 vec = pygame.math.Vector2
 
