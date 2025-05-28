@@ -96,8 +96,6 @@ def game_screen(window, player):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     state = DONE
-                if event.key == pygame.K_l:
-                    return BOSS, player, True
         # Atualiza o estado de cada sprite
         for sprite in all_sprites:
             if isinstance(sprite, (Wizard, Knight, Archer, Skeleton, SkeletonArcher, SkeletonArcherArrow, EliteOrc, Arrow, ArrowSpecial)):
