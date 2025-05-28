@@ -34,6 +34,11 @@ https://zerie.itch.io/tiny-rpg-character-asset-pack
 Tileset do Mapa:
 https://szadiart.itch.io/rogue-fantasy-catacombs
 
+Música de fundo:
+https://www.youtube.com/watch?v=phPJ5aABt1g
+Música do chefão:
+https://www.youtube.com/watch?v=x0euNw-4YOo
+
 
 
 
