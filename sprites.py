@@ -108,7 +108,7 @@ class Skeleton(pygame.sprite.Sprite):
                     self.acc += dist.normalize()
 
 
-            
+    # Lógica de movimento simples para seguir o jogador        
     def update(self, dt):
 
         # Animações de morte do esqueleto
@@ -1281,14 +1281,15 @@ class Necromancer(pygame.sprite.Sprite):
         self.lockon_attempted = False
         self.lockon_attempted = False
         self.death_animation_complete = False
-
+    #Função que faz com que o boss evite ficar colidindo com outros mobs.
+    # Calcula a distância entre o boss e cada mob. Se estiver dentro do raio de evasão aplica uma aceleração na direção oposta, empurrando o boss para longe dos outros.
     def avoid_mobs(self):
         for mob in self.all_skeletons:
             if mob != self:
                 dist = self.pos - mob.pos
                 if 0 < dist.length() < AVOID_RADIUS:
                     self.acc += dist.normalize()
-
+    #função do ataque criado
     def attack1necro(self):
         for i in range(2):
             offset_x = random.randint(-2 * TILESIZE, 2 * TILESIZE)
@@ -1305,10 +1306,14 @@ class Necromancer(pygame.sprite.Sprite):
         skeleton_archer1 = SkeletonArcher(spawn_x, spawn_y, 'idle', self.player, self.game_walls, self.assets, self.enemy_projectiles)
         self.all_skeletons.add(skeleton_archer1)
         self.all_sprites.add(skeleton_archer1)
+         # Função que ativa um lock-on no player.
+    # Cria um marcador visual na posição atual do player e guarda essa posição como alvo.
     def attempt_lockon(self):
         self.lockon = AttackLockOn(self.player, self)
         self.lockon_saved_pos = self.player.hit_rect.center
         self.all_sprites.add(self.lockon)
+        
+    # Função que executa o terceiro tipo de ataque do necromante (explosão em 8 direções).
     def attack3necro(self):
         for dir in ('up','down','left','right','up_right','up_left','down_left','down_right'):
             attack3 = NecromancerAttack3(self.player,self,dir)
@@ -1342,7 +1347,7 @@ class Necromancer(pygame.sprite.Sprite):
                     self.death_animation_complete = True
     
         if self.state != 'death':
-         
+         #calcula  distância até obj
             if distance_to(self.player, self) <= 10*TILESIZE:
                 self.attack_loop()
                 if self.state not in ('attack1', 'attack2', 'attack3', 'hurt'):
@@ -2045,7 +2050,7 @@ class Archer(pygame.sprite.Sprite):
             if now2 - self.last_slow >= self.slowed_duration:
                 self.slowed = False
                 self.playerspeed = ARCHER_SPEED
-
+    #Muda a animação
     def rotate_image(self, direction):
 
         flip = direction in ['left', 'up_left', 'down_left']
@@ -2126,7 +2131,8 @@ class Arrow(pygame.sprite.Sprite):
                 angle = math.degrees(math.atan2(-dy, dx))
                 self.image = pygame.transform.rotate(self.original_image, angle)
                 self.rect = self.image.get_rect(center=(x, y))
-
+    # Função que retorna o inimigo mais próximo dentro de um raio máximo (max_distance).
+    # Percorre todos os inimigos, calcula a distância e retorna o mais próximo, se estiver no alcance.
     def get_closest_enemy_in_range(self, max_distance):
         closest_enemy = None
         closest_dist = max_distance
@@ -2137,7 +2143,8 @@ class Arrow(pygame.sprite.Sprite):
                 closest_enemy = enemy
                 closest_dist = dist
         return closest_enemy
-
+     # Função que rotaciona a imagem do sprite para que ela fique na direção correta.
+    # Recebe uma string com a direção e retorna a imagem rotacionada.
     def rotate_image(self, direction):
          if direction == 'up':
              return pygame.transform.rotate(self.original_image, 90)
@@ -2155,7 +2162,8 @@ class Arrow(pygame.sprite.Sprite):
              return pygame.transform.rotate(self.original_image, -135)
          elif direction == 'down_right':
              return pygame.transform.rotate(self.original_image, -45)
-
+     # Função que retorna um vetor de velocidade baseado na direção fornecida.
+    # Direções diagonais são normalizadas para manter a mesma velocidade que direções retas.
     def get_velocity_vector(self, direction):
          if direction == 'up':
              return (0, -1)
