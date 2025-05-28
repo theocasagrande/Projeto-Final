@@ -387,7 +387,8 @@ class SkeletonArcherArrow(pygame.sprite.Sprite):
         self.enemy_projectiles = enemy_projectiles
 
 
-        #Perguntar para ChatGPT como funciona
+        # Calcula o angulo que a flecha precisa rotacionar e o vetor de velocidade dela
+        # de acordo com a distancia entre a flecha e o jogador
         archer_pos = self.skeleton_archer.rect.center
         player_pos = self.player.rect.center
         dx = player_pos[0] - archer_pos[0]
@@ -508,7 +509,7 @@ class EliteOrc(pygame.sprite.Sprite):
                     self.current_death_frame += 1
                 else:
                     self.kill()
-        # Ativa a animação de ataque se o esqueleto colidir com o hit_Rect do player
+        # Ativa a animação de ataque se o Orc colidir com o hit_Rect do player
         if self.state != 'death':
             if collide_hit_rect(self, self.player):
                 now = pygame.time.get_ticks()
@@ -521,8 +522,8 @@ class EliteOrc(pygame.sprite.Sprite):
                     self.speed = self.original_speed
                     self.last_attack = now 
 
-        # Se o player estiver entre 5 tiles de distancia do esqueleto, 
-        # o esqueleto começa a ir em direção ao player, evitando collidir com outros esqueletos
+        # Se o player estiver entre 8 tiles de distancia do esqueleto, 
+        # o Orc começa a ir em direção ao player, evitando collidir com outros inimigos
         if self.state != 'death':
             if distance_to(self.player, self) <= 8*TILESIZE:
                 now = pygame.time.get_ticks()
@@ -544,7 +545,7 @@ class EliteOrc(pygame.sprite.Sprite):
             else:
                 self.state = 'idle'
 
-        #Animação de ataque do esqueleto
+        #Animação de ataque do Orc
         if self.state == 'attack':
             self.vel = vec(0, 0)
             self.acc = vec(0, 0)
@@ -593,7 +594,7 @@ class EliteOrc(pygame.sprite.Sprite):
                         self.speed = self.original_speed
 
 
-        # Animação de tomar dano do esqueleto
+        # Animação de tomar dano do Orc
         if self.state == 'hurt':
             self.vel = vec(0, 0)
             self.acc = vec(0, 0)
@@ -616,7 +617,7 @@ class EliteOrc(pygame.sprite.Sprite):
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
         
-        # Animação do esqueleto parado e em movimento. Essas animações só acontecem se o esqueleto não
+        # Animação do Orc parado e em movimento. Essas animações só acontecem se o Orc não
         # estiver tomando dano, atacando ou morrendo
         if self.state not in ('attack','attack2', 'hurt', 'death'):
             if self.state == 'idle':
@@ -1496,7 +1497,7 @@ class Necromancer(pygame.sprite.Sprite):
             self.hit_rect.centery = self.pos.y
             self.rect.center = self.hit_rect.center
 
-            # Remove o esqueleto arqueiro de todos os grupos se ele morrer (vida acabar)
+            # Remove o boss de todos os grupos se ele morrer (vida acabar)
             if self.health <= 0:
                 self.state = 'death'
 
@@ -1506,7 +1507,7 @@ class Necromancer(pygame.sprite.Sprite):
         now = pygame.time.get_ticks()
         elapsed1 = now - self.last_attack_chain
 
-      
+        # Ativa ataques aleatorios a cada 4,5 segundos
         if elapsed1 > 4500:
             atq = random.randint(1, 4)
             if atq == 1:
@@ -1535,34 +1536,29 @@ class AttackLockOn(pygame.sprite.Sprite):
         self.last_update = pygame.time.get_ticks()
         self.all_sprites.add(self)
 
-
     def update(self):
         now = pygame.time.get_ticks()
         elapsed2 = now - self.last_update
+        # Segue o jogador por 1 segundo e meio
         if elapsed2 < 1500:
             elapsed2 = now - self.last_update
         if elapsed2 < 1500:
             self.hit_rect.center = self.player.hit_rect.center
             self.rect.center = self.hit_rect.center
             self.center_save = self.hit_rect.center
+        # Jogador tem 1 segundo para escapar do hit_rect do ataque
         elif elapsed2 < 2500:
             self.hit_rect.center = self.center_save
             self.rect.center = self.hit_rect.center
             self.rect.center = self.hit_rect.center
             self.center_save = self.hit_rect.center
         else:
+            # Se colidir com o jogador, ele cria o ataque dois
             if collide_hit_rect(self, self.player) and not self.necromancer.attack_lockedon:
                 self.necromancer.attack_lockedon = True
                 attack2 = NecromancerAttack2(self.player, self, self.necromancer)
                 self.all_sprites.add(attack2)
-                attack2 = NecromancerAttack2(self.player, self, self.necromancer)
-                self.all_sprites.add(attack2)
             self.kill()
-           
-        
-           
-        
-
 class NecromancerAttack2(pygame.sprite.Sprite):
     def __init__(self, player, lockonsprite, necromancer):
         pygame.sprite.Sprite.__init__(self)
@@ -1583,11 +1579,12 @@ class NecromancerAttack2(pygame.sprite.Sprite):
         self.player_hit = False
 
     def update(self):
-
+        # Se colidir com o jogador, ele toma dano
         if collide_hit_rect(self, self.player) and not self.player_hit:
             self.player.health -= NECRO_ATTACK2_DMG
             self.player.state = 'hurt'
             self.player_hit = True
+        # Animação
         now = pygame.time.get_ticks()
         if now - self.last_update > self.frame_rate:
             self.last_update = now
@@ -1618,132 +1615,7 @@ class NecromancerAttack3(pygame.sprite.Sprite):
 
             self.enemy_projectiles.add(self)
 
-
-            if direction == 'player':
-                target_pos = vec(self.player.rect.center)
-                direction_vector = target_pos - self.pos
-                if direction_vector.length() > 0:
-                    self.vel = direction_vector.normalize() * NECRO_ATTACK3_SPEED * 2
-                else:
-                    self.vel = vec(0, 0) 
-                angle = math.degrees(math.atan2(-direction_vector.y, direction_vector.x))
-                self.image = pygame.transform.rotate(self.original_image, angle)
-                self.rect = self.image.get_rect(center=self.pos)
-            else:
-                speed = NECRO_ATTACK3_SPEED
-                if direction == 'up':
-                    self.pos.y = self.necromancer.rect.top - self.hit_rect.height / 2
-                    self.vel = vec(0, -speed)
-                    angle = 90
-                elif direction == 'down':
-                    self.pos.y = self.necromancer.rect.bottom + self.hit_rect.height / 2
-                    self.vel = vec(0, speed)
-                    angle = -90
-                elif direction == 'left':
-                    self.pos.x = self.necromancer.rect.left - self.hit_rect.width / 2
-                    self.vel = vec(-speed, 0)
-                    angle = 180
-                elif direction == 'right':
-                    self.pos.x = self.necromancer.rect.right + self.hit_rect.width / 2
-                    self.vel = vec(speed, 0)
-                    angle = 0
-                elif direction == 'up_right':
-                    self.pos = vec(self.necromancer.rect.right + self.hit_rect.width / 2,
-                                self.necromancer.rect.top - self.hit_rect.height / 2)
-                    self.vel = vec(speed, -speed).normalize() * speed
-                    angle = 45
-                elif direction == 'up_left':
-                    self.pos = vec(self.necromancer.rect.left - self.hit_rect.width / 2,
-                                self.necromancer.rect.top - self.hit_rect.height / 2)
-                    self.vel = vec(-speed, -speed).normalize() * speed
-                    angle = 135
-                elif direction == 'down_right':
-                    self.pos = vec(self.necromancer.rect.right + self.hit_rect.width / 2,
-                                self.necromancer.rect.bottom + self.hit_rect.height / 2)
-                    self.vel = vec(speed, speed).normalize() * speed
-                    angle = -45
-                elif direction == 'down_left':
-                    self.pos = vec(self.necromancer.rect.left - self.hit_rect.width / 2,
-                                self.necromancer.rect.bottom + self.hit_rect.height / 2)
-                    self.vel = vec(-speed, speed).normalize() * speed
-                    angle = 225
-                self.image = pygame.transform.rotate(self.original_image, angle)
-                self.rect = self.image.get_rect(center=self.pos)
-
-            self.hit_rect.center = self.pos
-            
-        def update(self, dt):
-            self.pos += self.vel * dt
-            self.rect.center = self.pos
-            self.hit_rect.center = self.pos
-
-            # Collision with player
-            if collide_hit_rect(self, self.player):
-                self.player.health -= NECRO_ATTACK3_DMG
-                self.player.state = 'hurt'
-                self.kill()
-            # Collision with walls
-            for wall in self.player.game_walls:
-                if pygame.sprite.collide_rect(self, wall):
-                    self.kill()
-
-
-class NecromancerAttack2(pygame.sprite.Sprite):
-    def __init__(self, player, lockonsprite, necromancer):
-        pygame.sprite.Sprite.__init__(self)
-        self.player = player
-        self.lockonsprite = lockonsprite
-        self.necromancer = necromancer
-        self.animation_frames = self.player.assets['necromancer_attack2_effect']
-        self.image = self.animation_frames[0]
-        self.rect = self.image.get_rect()
-        self.hit_rect = NECRO_ATTACK2_HITRECT.copy()
-        self.hit_rect.center = self.lockonsprite.center_save
-        self.rect.center = self.hit_rect.center
-        self.last_update = 0
-        self.current_animation_frame = 0
-        self.frame_rate = 100
-        self.hit_rect.center = lockonsprite.center_save  
-        self.rect.center = self.hit_rect.center
-        self.player_hit = False
-
-    def update(self):
-
-        if collide_hit_rect(self, self.player) and not self.player_hit:
-            self.player.health -= NECRO_ATTACK2_DMG
-            self.player.state = 'hurt'
-            self.player_hit = True
-        now = pygame.time.get_ticks()
-        if now - self.last_update > self.frame_rate:
-            self.last_update = now
-            if self.current_animation_frame < len(self.animation_frames):
-                self.image = self.animation_frames[self.current_animation_frame]
-                old_center = self.rect.center
-                self.rect = self.image.get_rect()
-                self.rect.center = old_center
-                self.current_animation_frame += 1
-            else:
-                self.necromancer.attack_lockedon = False
-                self.kill()
-
-class NecromancerAttack3(pygame.sprite.Sprite):
-        def __init__(self, player, necromancer, direction):
-            pygame.sprite.Sprite.__init__(self)
-            self.player = player
-            self.necromancer = necromancer
-            self.image = self.player.assets['necromancer_attack3_effect'][0]
-            self.original_image = self.player.assets['necromancer_attack3_effect'][0]
-            self.rect = self.image.get_rect()
-            self.hit_rect = NECRO_ATTACK3_HIT_RECT.copy()
-            self.hit_rect.center = self.necromancer.hit_rect.center
-            self.direction = direction
-            self.enemy_projectiles = self.necromancer.enemy_projectiles
-            self.pos = vec(self.necromancer.rect.center)  # Start at necromancer's center
-            self.vel = vec(0, 0)
-
-            self.enemy_projectiles.add(self)
-
-
+            # Tipo de ataque que vai em direção ao jogador
             if direction == 'player':
                 target_pos = vec(self.player.rect.center)
                 direction_vector = target_pos - self.pos
@@ -1754,6 +1626,7 @@ class NecromancerAttack3(pygame.sprite.Sprite):
                 angle = math.degrees(math.atan2(-direction_vector.y, direction_vector.x))
                 self.image = pygame.transform.rotate(self.original_image, angle)
                 self.rect = self.image.get_rect(center=self.pos)
+            # Cria ataques em todas as direções
             else:
                 speed = NECRO_ATTACK3_SPEED
                 if direction == 'up':
@@ -1802,7 +1675,7 @@ class NecromancerAttack3(pygame.sprite.Sprite):
             self.rect.center = self.pos
             self.hit_rect.center = self.pos
 
-            # Collision with player
+            # Se colidir com o jogador, ele toma dano e anda mais devagar
             if collide_hit_rect(self, self.player):
                 self.player.health -= NECRO_ATTACK3_DMG
                 self.player.state = 'hurt'
@@ -1810,7 +1683,7 @@ class NecromancerAttack3(pygame.sprite.Sprite):
                     self.player.slowed = True
                     self.player.last_slow = pygame.time.get_ticks()  
                 self.kill()
-            # Collision with walls
+            # Se colidir com uma parede, desaparece
             for wall in self.player.game_walls:
                 if pygame.sprite.collide_rect(self, wall):
                     self.kill()
@@ -1885,7 +1758,7 @@ class Archer(pygame.sprite.Sprite):
         self.vel = vec(0, 0)
         keys = pygame.key.get_pressed()
         now = pygame.time.get_ticks()
-
+        # Animações de ataque e ataque especial
         if self.state != 'hurt':
             if keys[pygame.K_SPACE] and now - self.last_attack > self.attack_cooldown:
                 self.state = 'attack'
@@ -1897,7 +1770,7 @@ class Archer(pygame.sprite.Sprite):
                 self.last_special = now
                 self.current_special_frame = 0
                 
-
+        # Movimenta o personagem
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
             self.vel = vec(-self.playerspeed, -self.playerspeed)
             self.direction = 'up_left'
@@ -1947,6 +1820,8 @@ class Archer(pygame.sprite.Sprite):
         else:
             if self.state not in ('attack', 'special', 'hurt'):
                 self.state = 'idle'
+
+    # Cria as flechas
     def attack(self):
         arrow = Arrow(self.rect.centerx, self.rect.centery, self, self.direction)
         self.all_projectiles.add(arrow)
@@ -1960,11 +1835,11 @@ class Archer(pygame.sprite.Sprite):
     def update(self, dt):
         self.get_keys()
         now = pygame.time.get_ticks()
-
+        # Rotaciona a imagem se mudar de direção
         if self.direction != self.prev_direction:
             self.rotate_image(self.direction)
             self.prev_direction = self.direction
-
+        # Animação de ataque normal
         if self.state == 'attack':
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
@@ -1980,7 +1855,7 @@ class Archer(pygame.sprite.Sprite):
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
                     
-
+        #Animação de ataque especial
         elif self.state == 'special':
             if now - self.last_update > self.special_frame_rate:
                 self.last_update = now
@@ -1992,6 +1867,7 @@ class Archer(pygame.sprite.Sprite):
                 else:
                     self.state = 'idle'
                     self.current_special_frame = 0
+        # Animação de tomar dano
         elif self.state == 'hurt':
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
@@ -2006,7 +1882,7 @@ class Archer(pygame.sprite.Sprite):
                 self.hit_rect.centerx = self.pos.x
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
-
+        #Animação de andar e ficar parado
         if self.state not in ('attack', 'hurt', 'special'):
           
             if self.state == 'walk':
@@ -2036,7 +1912,7 @@ class Archer(pygame.sprite.Sprite):
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
 
-        
+        # Checa por colisões com paredes e muda a velocidade do personagem
         self.pos += self.vel * dt
         self.hit_rect.centerx = self.pos.x
         collision(self, self.game_walls, 'x')
@@ -2050,7 +1926,7 @@ class Archer(pygame.sprite.Sprite):
             if now2 - self.last_slow >= self.slowed_duration:
                 self.slowed = False
                 self.playerspeed = ARCHER_SPEED
-    #Muda a animação
+    #Rotaciona a imagem de acordo com a direção
     def rotate_image(self, direction):
 
         flip = direction in ['left', 'up_left', 'down_left']
@@ -2083,7 +1959,7 @@ class Archer(pygame.sprite.Sprite):
  
         if self.state == 'walk':
             self.image = self.walk_frames[self.current_walk_frame]
-        elif self.state == 'ice_attack':
+        elif self.state == 'attack':
             self.image = self.attack_frames[self.current_attack_frame]
         elif self.state == 'hurt':
             self.image = self.hurt_frames[self.current_hurt_frame]
@@ -2183,7 +2059,7 @@ class Arrow(pygame.sprite.Sprite):
              return (0.707, 0.707)
 
     def update(self, dt):
-        # Move
+        # Movimentação
         self.rect.x += self.vx * self.speed * dt
         self.rect.y += self.vy * self.speed * dt
         self.hit_rect.center = self.rect.center
@@ -2226,6 +2102,7 @@ class ArrowSpecial(pygame.sprite.Sprite):
         self.speed = 500
         self.vx, self.vy = self.get_velocity_vector(direction)
         self.damaged_enemies = set()
+    # Rotaciona a imagem da flecha de acordo com a direção
     def rotate_image(self, direction):
          if direction == 'up':
              return pygame.transform.rotate(self.original_image, 0)
@@ -2266,7 +2143,7 @@ class ArrowSpecial(pygame.sprite.Sprite):
 
         self.hit_rect.center = self.rect.center
 
-        # Check for collision with walls
+        # Checa colisão com inimigos
         hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
         for skeleton in hits:
             if skeleton not in self.damaged_enemies:
@@ -2354,6 +2231,7 @@ class Knight(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         now = pygame.time.get_ticks()
 
+        # Ativa animação de ataques
         if self.state != 'hurt':
             if keys[pygame.K_SPACE] and now - self.last_attack > self.attack_cooldown:
                 self.state = 'attack'
@@ -2365,7 +2243,8 @@ class Knight(pygame.sprite.Sprite):
                 self.last_special = now
                 self.current_special_frame = 0
                 
-
+        # Muda a velocidade do personagem se ele estiver apertando uma tecla de movimentação
+        # Muda também a animação do personagem para a de andar se ele não estiver atacando ou tomando dano
         if keys[pygame.K_UP] and keys[pygame.K_LEFT]:
             self.vel = vec(-self.playerspeed, -self.playerspeed)
             self.direction = 'up_left'
@@ -2415,6 +2294,7 @@ class Knight(pygame.sprite.Sprite):
         else:
             if self.state not in ('attack', 'special', 'hurt'):
                 self.state = 'idle'
+    # Cria as hitboxes dos ataques
     def attack(self):
         hitbox = KnightAttackHitbox(self)
         self.all_sprites.add(hitbox)
@@ -2426,11 +2306,11 @@ class Knight(pygame.sprite.Sprite):
     def update(self, dt):
         self.get_keys()
         now = pygame.time.get_ticks()
-
+        # Se o personagem muda de direção, rotaciona a imagem
         if self.direction != self.prev_direction:
             self.rotate_image(self.direction)
             self.prev_direction = self.direction
-
+        # Animação do ataque normal
         if self.state == 'attack':
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
@@ -2446,7 +2326,7 @@ class Knight(pygame.sprite.Sprite):
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
                     
-
+        # Animação do ataque especial
         elif self.state == 'special':
             if now - self.last_update > self.special_frame_rate:
                 self.last_update = now
@@ -2458,6 +2338,7 @@ class Knight(pygame.sprite.Sprite):
                 else:
                     self.state = 'idle'
                     self.current_special_frame = 0
+        # Animação de tomar dano
         elif self.state == 'hurt':
             if now - self.last_update > self.frame_rate:
                 self.last_update = now
@@ -2473,6 +2354,7 @@ class Knight(pygame.sprite.Sprite):
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
 
+        # Animação de andar e enquanto o personagem está parado
         if self.state not in ('attack', 'hurt', 'special'):
           
             if self.state == 'walk':
@@ -2502,7 +2384,7 @@ class Knight(pygame.sprite.Sprite):
                 self.hit_rect.centery = self.pos.y
                 self.rect.center = self.hit_rect.center
 
-        
+        # Verifica colisões com paredes e atualiza a velocidade do personagem
         self.pos += self.vel * dt
         self.hit_rect.centerx = self.pos.x
         collision(self, self.game_walls, 'x')
@@ -2517,6 +2399,7 @@ class Knight(pygame.sprite.Sprite):
                 self.slowed = False
                 self.playerspeed = PLAYER_SPEED
 
+    # Rotação da imagem dependendo na direção que esta andando.
     def rotate_image(self, direction):
 
         flip = direction in ['left', 'up_left', 'down_left']
@@ -2549,7 +2432,7 @@ class Knight(pygame.sprite.Sprite):
  
         if self.state == 'walk':
             self.image = self.walk_frames[self.current_walk_frame]
-        elif self.state == 'ice_attack':
+        elif self.state == 'attack':
             self.image = self.attack_frames[self.current_attack_frame]
         elif self.state == 'hurt':
             self.image = self.hurt_frames[self.current_hurt_frame]
@@ -2586,7 +2469,7 @@ class KnightAttackHitbox(pygame.sprite.Sprite):
     def update(self):
         now = pygame.time.get_ticks()
         
-
+        # Posiciona de acordo com a direção do personagem
         if  self.player.direction in ('up_right', 'right', 'down_right'):
             self.hit_rect.left = self.player.hit_rect.right
         elif  self.player.direction in ('up_left', 'left', 'down_left'):
@@ -2597,7 +2480,7 @@ class KnightAttackHitbox(pygame.sprite.Sprite):
             self.hit_rect.top = self.player.hit_rect.bottom
 
 
-
+        # Verifica colisão com inimigos e aplica dano
         hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
         for skeleton in hits:
             if skeleton not in self.damaged_enemies:
@@ -2633,7 +2516,7 @@ class KnightSpecialHitbox(pygame.sprite.Sprite):
     def update(self):
         now = pygame.time.get_ticks()
         
-
+        # Posiciona a hitbox de acordo com a direção do personagem
         if  self.player.direction in ('up_right', 'right', 'down_right'):
             self.hit_rect.left = self.player.hit_rect.right
         elif  self.player.direction in ('up_left', 'left', 'down_left'):
@@ -2644,7 +2527,7 @@ class KnightSpecialHitbox(pygame.sprite.Sprite):
             self.hit_rect.top = self.player.hit_rect.bottom
 
 
-
+        # Verifica colisão com inimigos e aplica dano
         hits = pygame.sprite.spritecollide(self, self.all_skeletons, False, collide_hit_rect)
         for skeleton in hits:
             if skeleton not in self.damaged_enemies:
@@ -2656,7 +2539,7 @@ class KnightSpecialHitbox(pygame.sprite.Sprite):
                 elif not isinstance(skeleton, Necromancer):
                     skeleton.state = 'hurt'
                 self.damaged_enemies.add(skeleton)
-        
+        # Remove a hitbox quando o ataque acaba
         if now - self.last_update >= self.attack_duration:
             self.kill()
 
