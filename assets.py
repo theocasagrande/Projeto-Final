@@ -5,7 +5,7 @@ from pygame.locals import *
 from typing import List, Tuple
 from config import *
 from tilemap import *
-
+# Função para carregar uma imagem e Retorna a imagem carregada
 def load_assets():
     assets = {}
     assets['fontinit'] = pygame.font.Font(os.path.join(FNT_DIR,'Bleeding_Cowboys.ttf'), 28)
