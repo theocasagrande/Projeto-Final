@@ -5,6 +5,7 @@ from config import *
 from assets import load_assets
 import time
 from sprites import *
+from musica import parar_musica
 # ----- Cores
 vec = pygame.math.Vector2
 
@@ -128,6 +129,7 @@ def game_screen(window, player):
 
         teleport = pygame.sprite.spritecollide(playerselected, bossteleport, False, collide_hit_rect)
         if teleport:
+            from musica import parar_musica
             return BOSS, player, True
         for skeleton in all_skeletons:
             # Calculate health bar position relative to camera

@@ -3,6 +3,8 @@ import random
 from os import path
 from config import *
 from assets import load_assets
+from musica import tocar_musica_fundo
+
 
 BLACK = (0, 0, 0)
 
@@ -15,7 +17,7 @@ def init_screen(window):
     wizardimage = assets['wizard_idle'][0]
     knightimage = assets['knight_idle'][0]
     archerimage = assets['archer_idle'][0]
-
+    tocar_musica_fundo()
     clock = pygame.time.Clock()
     running = True
     show_loading = False

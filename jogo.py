@@ -12,7 +12,9 @@ from game_screen import game_screen
 from boss_room import boss_room
 from retry import retry_screen
 from end import winner_screen
+
 pygame.init()
+pygame.mixer.init()
 
 window = pygame.display.set_mode((WIDTH, HEIGHT),pygame.FULLSCREEN)
 pygame.display.set_caption("Soul Knightmare")
